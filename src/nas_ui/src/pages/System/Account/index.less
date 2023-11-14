@@ -1,0 +1,35 @@
+.title_border {
+  text-align: center;
+  margin: 10px;
+  border-radius: 2px;
+  justify-content: center;
+  background-color: #fff;
+  padding: 20px;
+  font-size: 15px;
+  width: 500px;
+  :global {
+    span {
+      display: block;
+      color: #333;
+      margin: 15px 0;
+      margin-right: 15px;
+    }
+  }
+}
+
+.flex {
+  display: flex;
+  margin-bottom: 10px !important;
+  :global {
+    .ant-form-item-control-input-content {
+      display: flex !important;
+      margin: 0;
+    }
+    .ant-form-item-label {
+      text-align: left;
+    }
+    .ant-form-item {
+      margin: 0;
+    }
+  }
+}
