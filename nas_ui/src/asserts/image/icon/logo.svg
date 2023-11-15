@@ -1,0 +1,26 @@
+<svg
+  viewBox="0 0 1024 1024"
+  class="icon"
+  version="1.1"
+  xmlns="http://www.w3.org/2000/svg"
+  preserveAspectRatio="xMidYMid meet"
+>
+  <!-- 绘制聊天泡泡背景 -->
+  <ellipse
+    cx="512"
+    cy="512"
+    rx="450"
+    ry="450"
+    fill="#7269E3"
+  />
+  <!-- 绘制文本对话图标 -->
+  <rect x="320" y="416" width="384" height="64" rx="32" fill="white" />
+  <rect x="320" y="512" width="288" height="64" rx="32" fill="white" />
+  <rect x="320" y="608" width="192" height="64" rx="32" fill="white" />
+
+  <!-- 绘制小尾巴 -->
+  <path
+    d="M460,800c20,20,60,20,80,0l40,-40l-120,0z"
+    fill="#7269E3"
+  />
+</svg>

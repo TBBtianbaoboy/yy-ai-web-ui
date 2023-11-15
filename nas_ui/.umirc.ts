@@ -9,16 +9,16 @@ export default defineConfig({
     hmr: true,
   },
   proxy: {
-    '/api': {
-      target: 'https://nas.lengyangyu520.cn/',
-      changeOrigin: true,
-      pathRewrite: { '^/api': '/api' },
-    },
     // '/api': {
-    //     target: 'http://127.0.0.1:5252/',
-    //     changeOrigin: true,
-    //     pathRewrite: { '^/api': '' },
+    //   target: 'https://nas.lengyangyu520.cn/',
+    //   changeOrigin: true,
+    //   pathRewrite: { '^/api': '/api' },
     // },
+    '/api': {
+      target: 'http://127.0.0.1:5252/',
+      changeOrigin: true,
+      pathRewrite: { '^/api': '' },
+    },
   },
   nodeModulesTransform: {
     type: 'none',

@@ -23,6 +23,7 @@ export const siderMemu: IRoute[] = [
   {
     path: '/login',
     component: '@/pages/Login/index',
+    title: '登录NAS',
     noShowInMenu: true,
   },
   // 测试页面

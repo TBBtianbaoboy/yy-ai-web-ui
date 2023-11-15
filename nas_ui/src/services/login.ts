@@ -7,4 +7,7 @@ const login = '/auth/login/';
 export const getValidCode = () => request<Login.ValidCode>(getCode, {});
 
 export const loginIn = (params: Login.LoginReq) =>
-  request<Login.LoginRes>(login, { method: 'POST', body: params });
+  request<Login.LoginRes>(login, {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });

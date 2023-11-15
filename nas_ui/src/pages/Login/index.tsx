@@ -7,13 +7,14 @@ import { useRequest } from 'ahooks';
 import { getValidCode, loginIn } from '@/services/login';
 import React from 'react';
 import { useEffect } from 'react';
-import { GithubFilled } from '@ant-design/icons';
+import { HomeTwoTone } from '@ant-design/icons';
 import {
   LOGIN_UID,
   LOGIN_TOKEN,
   LOGIN_USERNAME,
   LOGIN_TOKEN_PRIFIX,
 } from '@/utils/constant';
+
 const { Item } = Form;
 
 export default function IndexPage() {
@@ -24,7 +25,7 @@ export default function IndexPage() {
   // 在进入登录页面时，如果已经登录过，则直接跳转到聊天页面
   useEffect(() => {
     if (localStorage.getItem('token')) {
-      history.push('/asset');
+      history.push('/chat');
     }
   }, []);
 
@@ -50,8 +51,10 @@ export default function IndexPage() {
       <div className={styles.topRightImage}>
         <Button
           className={styles.github}
-          style={{ backgroundColor: '#160729', border: '#160729' }}
-          icon={<GithubFilled />}
+          icon={<HomeTwoTone />}
+          shape='circle'
+          size='large'
+          title='personal github'
           onClick={() => {
             window.open('https://github.com/TBBtianbaoboy', '_blank');
           }}

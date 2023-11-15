@@ -1,7 +1,6 @@
 import { message as messageInstance, notification } from 'antd'
 import type { IconType } from 'antd/lib/notification'
 import fetch from 'isomorphic-fetch'
-import type { Key } from 'path-to-regexp'
 import pathToRegexp from 'path-to-regexp'
 import { stringify } from 'qs'
 import { history } from 'umi'
@@ -31,11 +30,6 @@ const codeMessage: { [v: string]: any } = {
   503: '服务不可用，服务器暂时过载或维护',
   504: '网关超时'
 }
-
-// const logout = () => {
-//   localStorage.removeItem(MS_LOGIN_TOKEN)
-//   history.push('/login')
-// }
 
 export const logoutCallback = () => {
   localStorage.removeItem(LOGIN_TOKEN)
@@ -150,78 +144,165 @@ const handleListNull = (res: any) => {
  * @param  {string} 处理错误的类型 error warning info
  * @return Promise<any> 包括 data 或者 err 的对象
  */
-const request: <T>(
-  url: string,
-  options: RequestInit | { params: { [key: string]: any } },
-  errorType?: IconType
-) => Promise<T> = (url, options, errorType = 'error') => {
-  const realUrl =  '/api' + url
+// const request: <T>(
+//   url: string,
+//   options: RequestInit | { params: { [key: string]: any } },
+//   errorType?: IconType
+// ) => Promise<T> = (url, options, errorType = 'error') => {
+//   const realUrl =  '/api' + url
+//
+//   const newOptions: any = {
+//     credentials: 'include',
+//     ...options
+//   }
+//   const { method = 'GET' } = options
+//   let compileUrl = ''
+//
+//   const token = localStorage.getItem(LOGIN_TOKEN)
+//
+//   newOptions.headers = {
+//       Authorization: `${token}`,
+//     ...newOptions.headers
+//   }
+//
+//   if (['POST', 'PUT', 'DELETE'].includes(method)) {
+//     const match = pathToRegexp.parse(realUrl)
+//
+//     if (newOptions.body instanceof FormData) {
+//       newOptions.headers = {
+//         Accept: 'application/json',
+//         ...newOptions.headers
+//       }
+//       for (const item of match) {
+//         if (typeof item === 'object' && (<Key>item).name) {
+//           const val = newOptions.body.get((<Key>item).name)
+//           compileUrl += `/${val}`
+//         } else {
+//           compileUrl += item
+//         }
+//       }
+//     } else {
+//       compileUrl = pathToRegexp.compile(realUrl)(newOptions.body)
+//       for (const item of match) {
+//         if (typeof item === 'object' && (<Key>item).name) {
+//           delete newOptions.body[(<Key>item).name]
+//         }
+//       }
+//       newOptions.headers = {
+//         Accept: 'application/json',
+//         'Content-Type': 'application/json; charset=utf-8',
+//         ...newOptions.headers
+//       }
+//       newOptions.body = options.headers ? newOptions.body : JSON.stringify(newOptions.body)
+//     }
+//   } else if (method === 'GET') {
+//     const { params = {} } = newOptions
+//     const shallowData = { ...params }
+//     const match = pathToRegexp.parse(realUrl)
+//     // query参数中 : 导致解析失败
+//     const [host, ...query] = realUrl.split('?')
+//     compileUrl =
+//       pathToRegexp.compile(host)(params) + (query.length !== 0 ? `?${query.join('?')}` : '')
+//     for (const item of match) {
+//       if (typeof item === 'object' && (<Key>item).name) {
+//         delete shallowData[(<Key>item).name]
+//       }
+//     }
+//     // shallowData.timestamp = new Date().getTime()
+//
+//     compileUrl = isEmptyObject(shallowData)
+//       ? compileUrl
+//       : `${compileUrl}?${stringify(shallowData, { arrayFormat: 'comma' })}`
+//   }
+//
+//   return fetch(compileUrl, newOptions)
+//     .then(checkStatus)
+//     .then(response => {
+//       if (response!.status === 204) {
+//         return response!.text()
+//   }
+//       return response!.json()
+//     })
+//     .then(handleListNull)
+//     .then(checkCode.bind(null, errorType))
+//     .catch(e => {
+//       if (e.name === 'TypeError') {
+//         notification.error({
+//           message: '出错了',
+//           description: '接口出现未知错误，请联系管理员！'
+//         })
+//       }
+//       return Promise.reject(e)
+//     })
+// }
 
-  const newOptions: any = {
-    credentials: 'include',
-    ...options
-  }
-  const { method = 'GET' } = options
-  let compileUrl = ''
+interface Params {
+  [key: string]: any;
+}
 
-  const token = localStorage.getItem(LOGIN_TOKEN)
+// 继承 RequestInit，另外扩展了 params 字段
+interface ExtendedRequestInit extends RequestInit {
+  params?: Params | undefined;
+}
 
-  newOptions.headers = {
-    Authorization: `${token}`,
-    ...newOptions.headers
-  }
+const request = async <T>(url: string, options: ExtendedRequestInit, errorType: IconType = 'error'): Promise<T> => {
+  const realUrl = '/api' + url; // 比如 realUrl 是 /api/users
+  const token = localStorage.getItem(LOGIN_TOKEN);
 
-  if (['POST', 'PUT', 'DELETE'].includes(method)) {
-    const match = pathToRegexp.parse(realUrl)
+  const newOptions: ExtendedRequestInit = {
+    ...options,
+    headers: {
+      Accept: 'application/json',
+      Authorization: `${token}`,
+      ...options.headers,
+    },
+    credentials: 'include', // 每次发送请求都带上cookie或HTTP认证相关数据
+  };
 
+  const method = options.method ?? 'GET';
+  let compileUrl = '';
+
+  if (['POST', 'PUT', 'DELETE'].includes(method.toUpperCase())) { // 处理 POST、PUT、DELETE 请求的 URL
+    const match = pathToRegexp.parse(realUrl);
+
+    // 假设 `realUrl` 是 "/users/:userId/books/:bookId"，`newOptions.body` 是一个 `FormData` 实例，并且它包含了 `userId` 为 '123' 和 `bookId` 为 '456'。
+    // 代码运行后，`compileUrl` 最终会被构建为 "/users/123/books/456"。
     if (newOptions.body instanceof FormData) {
-      newOptions.headers = {
-        Accept: 'application/json',
-        ...newOptions.headers
-      }
       for (const item of match) {
-        if (typeof item === 'object' && (<Key>item).name) {
-          const val = newOptions.body.get((<Key>item).name)
-          compileUrl += `/${val}`
+        if (typeof item === 'object' && item.name) {
+          const val = newOptions.body.get(item.name as string);
+          compileUrl += `/${val}`;
         } else {
-          compileUrl += item
+          compileUrl += item;
         }
       }
-    } else {
-      compileUrl = pathToRegexp.compile(realUrl)(newOptions.body)
-      for (const item of match) {
-        if (typeof item === 'object' && (<Key>item).name) {
-          delete newOptions.body[(<Key>item).name]
-        }
-      }
+    }
+    else {
+      // JSON payload (json string)
+      compileUrl = pathToRegexp.compile(realUrl)(newOptions.body as object);
       newOptions.headers = {
-        Accept: 'application/json',
+        ...newOptions.headers,
         'Content-Type': 'application/json; charset=utf-8',
-        ...newOptions.headers
-      }
-      newOptions.body = options.headers ? newOptions.body : JSON.stringify(newOptions.body)
+      };
+      newOptions.body = options.headers ? JSON.stringify(newOptions.body) : newOptions.body ;
     }
-  } else if (method === 'GET') {
-    const { params = {} } = newOptions
-    const shallowData = { ...params }
-    const match = pathToRegexp.parse(realUrl)
-    // query参数中 : 导致解析失败
-    const [host, ...query] = realUrl.split('?')
-    compileUrl =
-      pathToRegexp.compile(host)(params) + (query.length !== 0 ? `?${query.join('?')}` : '')
-    for (const item of match) {
-      if (typeof item === 'object' && (<Key>item).name) {
-        delete shallowData[(<Key>item).name]
-      }
-    }
-    // shallowData.timestamp = new Date().getTime()
+  } else if (method.toUpperCase() === 'GET') { // 处理 GET 请求的 URL
+    const { params={} } = newOptions; // 对象解构赋值，如果没有 params 字段，则默认为 {}
+    const shallowData = { ...params };
+    const match = pathToRegexp.parse(realUrl);
+    const [host, ...query] = realUrl.split('?');
+    compileUrl = `${pathToRegexp.compile(host)(params ?? {})}${query.length ? `?${query.join('?')}` : ''}`;
 
-    compileUrl = isEmptyObject(shallowData)
-      ? compileUrl
-      : `${compileUrl}?${stringify(shallowData, { arrayFormat: 'comma' })}`
+    for (const item of match) {
+      if (typeof item === 'object' && item.name) {
+        delete shallowData[item.name];
+      }
+    }
+
+    compileUrl += isEmptyObject(shallowData) ? '' : `?${stringify(shallowData, { arrayFormat: 'comma' })}`;
   }
 
-  return fetch(compileUrl, newOptions)
+    return fetch(compileUrl, newOptions)
     .then(checkStatus)
     .then(response => {
       if (response!.status === 204) {
@@ -240,6 +321,8 @@ const request: <T>(
       }
       return Promise.reject(e)
     })
-}
+
+};
+
 
 export default request

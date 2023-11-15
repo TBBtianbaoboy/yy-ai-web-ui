@@ -1,9 +1,15 @@
 import styles from './index.less';
 import React, { Fragment, useEffect, useState } from 'react';
-import { Breadcrumb, Button, Dropdown, Layout, Menu, SubMenuProps } from 'antd';
+import { Breadcrumb, Button, Dropdown, Layout, Menu, MenuProps } from 'antd';
 import { history } from 'umi';
 import { siderMemu } from '../../config/route';
-import { DownOutlined, TagTwoTone, UserOutlined } from '@ant-design/icons';
+import {
+  LogoutOutlined,
+  InfoCircleTwoTone,
+  UserOutlined,
+} from '@ant-design/icons';
+import user from '@/asserts/image/icon/user.svg';
+import mylogo from '@/asserts/image/icon/password.svg';
 
 const { SubMenu } = Menu;
 const { Header, Content, Sider, Footer } = Layout;
@@ -43,25 +49,48 @@ function BasicLayout(props: {
     }
   };
 
-  const menu = (
-    <Menu>
-      <Menu.Item key="0">
-        <Button type="primary" ghost href="/help_center">
-          帮助中心
-        </Button>
-      </Menu.Item>
-      <Menu.Item key="1">
-        <Button type="primary" ghost onClick={logout}>
-          退出登录
-        </Button>
-      </Menu.Item>
-      <Menu.Item key="2" hidden={uid(localStorage.getItem('uid'))}>
-        <Button type="primary" ghost href="https://www.lengyangyu520.cn/">
-          For Blog
-        </Button>
-      </Menu.Item>
-    </Menu>
-  );
+  // const menu = (
+  //   <Menu>
+  //     <Menu.Item key="0">
+  //       <Button type="primary" ghost href="/help_center">
+  //         帮助中心
+  //       </Button>
+  //     </Menu.Item>
+  //     <Menu.Item key="1">
+  //       <Button type="primary" ghost onClick={logout}>
+  //         退出登录
+  //       </Button>
+  //     </Menu.Item>
+  //     <Menu.Item key="2" hidden={uid(localStorage.getItem('uid'))}>
+  //       <Button type="primary" ghost href="https://www.lengyangyu520.cn/">
+  //         For Blog
+  //       </Button>
+  //     </Menu.Item>
+  //   </Menu>
+  // );
+
+  const menu: MenuProps = {
+    theme: 'light',
+    inlineIndent: 20,
+    items: [
+      {
+        key: '0',
+        icon: <InfoCircleTwoTone />,
+        label: '帮助中心',
+        onClick: () => {
+          history.push('/help_center');
+        },
+      },
+      {
+        key: '1',
+        icon: <LogoutOutlined />,
+        label: '退出登陆',
+        onClick: () => {
+          logout();
+        },
+      },
+    ],
+  };
 
   const handleOpenChange = (keys: React.Key[]) => {
     const new_keys = keys.map(String);
@@ -103,15 +132,30 @@ function BasicLayout(props: {
   };
   let username = localStorage.getItem('username');
   const [collapsed, setCollapsed] = useState<true | false>(false);
+  const [expandHeader, setExpandHeader] = useState<true | false>(false);
 
   return pathname !== '/404' && pathname !== '/login' ? (
     <Layout style={{ minWidth: 1500, minHeight: '100%' }}>
-      <Header className={styles.header}>
-        <div className="logo"></div>
-        <div>
-          <Dropdown overlay={menu}>
+      <Header
+        className={styles.header}
+        onMouseEnter={() => setExpandHeader(true)}
+        onMouseLeave={() => setExpandHeader(false)}
+        style={{
+          transition: 'height 0.2s',
+          height: expandHeader ? '128px' : '64px',
+        }}
+      >
+        <div className={styles.user}>
+          {''}
+          <img src={mylogo}></img>
+        </div>
+        <div className="logo">
+          <Dropdown menu={menu} trigger={['click']}>
             <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
-              {username} <DownOutlined />
+              <div className="logo">
+                {' '}
+                <img src={user}></img>
+              </div>
             </a>
           </Dropdown>
         </div>
