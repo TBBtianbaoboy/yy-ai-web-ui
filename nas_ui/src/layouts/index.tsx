@@ -1,15 +1,23 @@
 import styles from './index.less';
 import React, { Fragment, useEffect, useState } from 'react';
 import { Breadcrumb, Button, Dropdown, Layout, Menu, MenuProps } from 'antd';
-import { history } from 'umi';
-import { siderMemu } from '../../config/route';
+import { history,useLocation,Link } from 'umi';
 import {
   LogoutOutlined,
   InfoCircleTwoTone,
   UserOutlined,
 } from '@ant-design/icons';
-import user from '@/asserts/image/icon/user.svg';
-import mylogo from '@/asserts/image/icon/password.svg';
+import {
+  GithubFilled,
+  InfoCircleFilled,
+  PlusCircleFilled,
+  QuestionCircleFilled,
+  SearchOutlined,
+} from '@ant-design/icons';
+import type { ProSettings } from '@ant-design/pro-components';
+import { PageContainer, ProCard, ProLayout } from '@ant-design/pro-components';
+import { Input } from 'antd';
+import defaultProps from '../../config/route';
 
 const { SubMenu } = Menu;
 const { Header, Content, Sider, Footer } = Layout;
@@ -23,14 +31,8 @@ function BasicLayout(props: {
     | null
     | undefined;
 }) {
-  const [openKey, setOpenKey] = useState<string[]>(['/asset']);
-  const {
-    location: { pathname },
-  } = props;
-  const getRouteFather = (pathname: string) => '/' + pathname.split('/')[1];
-  useEffect(() => {
-    setOpenKey(v => [...v, getRouteFather(pathname)]);
-  }, []);
+
+  const [pathname, setPathname] = useState('/asset');
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -38,202 +40,137 @@ function BasicLayout(props: {
     history.push('/');
   };
 
-  const uid = (uid_tmp: string | null) => {
-    if (uid_tmp == '1') return false;
-    return true;
+  // const uid = (uid_tmp: string | null) => {
+  //   if (uid_tmp == '1') return false;
+  //   return true;
+  // };
+
+  // const hiddenSubMenu = (title: string | undefined) => {
+  //   if (title == '用户管理' || title == '日志审计' || title == '主机资产') {
+  //     return uid(localStorage.getItem('uid'));
+  //   }
+  // };
+
+    const settings: ProSettings | undefined = {
+    fixSiderbar: true,
+    layout: 'mix',
+    splitMenus: true,
   };
 
-  const hiddenSubMenu = (title: string | undefined) => {
-    if (title == '用户管理' || title == '日志审计' || title == '主机资产') {
-      return uid(localStorage.getItem('uid'));
-    }
-  };
-
-  // const menu = (
-  //   <Menu>
-  //     <Menu.Item key="0">
-  //       <Button type="primary" ghost href="/help_center">
-  //         帮助中心
-  //       </Button>
-  //     </Menu.Item>
-  //     <Menu.Item key="1">
-  //       <Button type="primary" ghost onClick={logout}>
-  //         退出登录
-  //       </Button>
-  //     </Menu.Item>
-  //     <Menu.Item key="2" hidden={uid(localStorage.getItem('uid'))}>
-  //       <Button type="primary" ghost href="https://www.lengyangyu520.cn/">
-  //         For Blog
-  //       </Button>
-  //     </Menu.Item>
-  //   </Menu>
-  // );
-
-  const menu: MenuProps = {
-    theme: 'light',
-    inlineIndent: 20,
-    items: [
-      {
-        key: '0',
-        icon: <InfoCircleTwoTone />,
-        label: '帮助中心',
-        onClick: () => {
-          history.push('/help_center');
-        },
-      },
-      {
-        key: '1',
-        icon: <LogoutOutlined />,
-        label: '退出登陆',
-        onClick: () => {
-          logout();
-        },
-      },
-    ],
-  };
-
-  const handleOpenChange = (keys: React.Key[]) => {
-    const new_keys = keys.map(String);
-    setOpenKey(new_keys);
-  };
-
-  const breadcrumbs = () => {
-    if (pathname === '/') {
-      return [];
-    }
-    const getRoutes = pathname.split('/').filter((txt: string) => txt !== '');
-    let nowIndex = 0;
-    let nowSearch = [...siderMemu];
-    let breadcrumb = [];
-    let flag = true;
-    if (getRoutes.length > 0) {
-      while (nowIndex < getRoutes.length) {
-        for (let i = 0; i < nowSearch.length; i++) {
-          if (
-            !nowSearch[i].noShowInMenu &&
-            nowSearch[i].path!.split('/')[nowIndex + 1] === getRoutes[nowIndex]
-          ) {
-            breadcrumb.push(nowSearch[i]);
-            nowSearch = nowSearch[i].routes || [];
-            nowIndex++;
-            flag = false;
-          }
-        }
-        if (flag) {
-          break;
-        }
-        if (!nowSearch.length) {
-          break;
-        }
-        flag = true;
-      }
-      return breadcrumb;
-    } else return [];
-  };
-  let username = localStorage.getItem('username');
-  const [collapsed, setCollapsed] = useState<true | false>(false);
-  const [expandHeader, setExpandHeader] = useState<true | false>(false);
-
-  return pathname !== '/404' && pathname !== '/login' ? (
-    <Layout style={{ minWidth: 1500, minHeight: '100%' }}>
-      <Header
-        className={styles.header}
-        onMouseEnter={() => setExpandHeader(true)}
-        onMouseLeave={() => setExpandHeader(false)}
-        style={{
-          transition: 'height 0.2s',
-          height: expandHeader ? '128px' : '64px',
+console.log("pathname is ",pathname)
+  return  pathname !== '/login' ? (
+    <div
+      id="test-pro-layout"
+      style={{
+        height: '100vh',
+      }}
+    >
+      <ProLayout
+        bgLayoutImgList={[
+          {
+            src: 'https://img.alicdn.com/imgextra/i2/O1CN01O4etvp1DvpFLKfuWq_!!6000000000279-2-tps-609-606.png',
+            left: 85,
+            bottom: 100,
+            height: '303px',
+          },
+          {
+            src: 'https://img.alicdn.com/imgextra/i2/O1CN01O4etvp1DvpFLKfuWq_!!6000000000279-2-tps-609-606.png',
+            bottom: -68,
+            right: -45,
+            height: '303px',
+          },
+          {
+            src: 'https://img.alicdn.com/imgextra/i3/O1CN018NxReL1shX85Yz6Cx_!!6000000005798-2-tps-884-496.png',
+            bottom: 0,
+            left: 0,
+            width: '331px',
+          },
+        ]}
+        {...defaultProps}
+        // route={}
+        location={{
+          pathname,
         }}
-      >
-        <div className={styles.user}>
-          {''}
-          <img src={mylogo}></img>
-        </div>
-        <div className="logo">
-          <Dropdown menu={menu} trigger={['click']}>
-            <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
-              <div className="logo">
-                {' '}
-                <img src={user}></img>
-              </div>
-            </a>
-          </Dropdown>
-        </div>
-      </Header>
-      <Sider
-        width={200}
-        className={styles.sider}
-        collapsible
-        collapsed={collapsed}
-        onCollapse={collapsed => {
-          setCollapsed(collapsed);
+        menu={{
+          type: 'group',
         }}
-      >
-        <div className="logo" />
-        <Menu
-          theme="dark"
-          mode="inline"
-          defaultSelectedKeys={[]}
-          style={{ height: '100%', borderRight: 0 }}
-          selectedKeys={pathname}
-          openKeys={openKey}
-          onOpenChange={handleOpenChange}
-        >
-          {siderMemu
-            .filter(item => !item.noShowInMenu)
-            .map((item, index) => {
-              const children = item.routes?.filter(item => !item.noShowInMenu);
-              return (
-                <Fragment key={index}>
-                  {children?.length ? (
-                    <SubMenu
-                      key={item.path}
-                      title={item.title}
-                      icon={item.icon}
-                    >
-                      {children.map(item => (
-                        <Menu.Item
-                          key={item.path}
-                          onClick={() => {
-                            history.push(item.path!);
-                          }}
-                          hidden={hiddenSubMenu(item.title)}
-                        >
-                          {item.title}
-                        </Menu.Item>
-                      ))}
-                    </SubMenu>
-                  ) : (
-                    <Menu.Item
-                      key={item.path}
-                      onClick={() => {
-                        history.push(item.path!);
+        avatarProps={{
+          src: 'https://gw.alipayobjects.com/zos/antfincdn/efFD%24IOql2/weixintupian_20170331104822.jpg',
+          size: 'small',
+          title: '七妮妮',
+        }}
+        actionsRender={(props) => {
+          if (props.isMobile) return [];
+          return [
+            props.layout !== 'side' && document.body.clientWidth > 1400 ? (
+              <div
+                key="SearchOutlined"
+                aria-hidden
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginInlineEnd: 24,
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
+              >
+                <Input
+                  style={{
+                    borderRadius: 4,
+                    marginInlineEnd: 12,
+                    backgroundColor: 'rgba(0,0,0,0.03)',
+                  }}
+                  prefix={
+                    <SearchOutlined
+                      style={{
+                        color: 'rgba(0, 0, 0, 0.15)',
                       }}
-                    >
-                      {item.title}
-                    </Menu.Item>
-                  )}
-                </Fragment>
-              );
-            })}
-        </Menu>
-      </Sider>
-      <Layout
-        style={{ padding: '0 24px 24px', marginLeft: 200, marginTop: 80 }}
+                    />
+                  }
+                  placeholder="搜索方案"
+                  bordered={false}
+                />
+                <PlusCircleFilled
+                  style={{
+                    color: 'var(--ant-primary-color)',
+                    fontSize: 24,
+                  }}
+                />
+              </div>
+            ) : undefined,
+            <InfoCircleFilled key="InfoCircleFilled" />,
+            <QuestionCircleFilled key="QuestionCircleFilled" />,
+            <GithubFilled key="GithubFilled" />,
+            <LogoutOutlined key="LogoutOutlined" onClick={() => {
+            logout();
+
+            }} />,
+          ];
+        }}
+        menuFooterRender={(props) => {
+          if (props?.collapsed) return undefined;
+          return (
+            <div
+              style={{
+                textAlign: 'center',
+                paddingBlockStart: 12,
+              }}
+            >
+              <div>© 2021 Made with love</div>
+              <div>by Ant Design</div>
+            </div>
+          );
+        }}
+        onMenuHeaderClick={()=>{ history.push('/') }} // 点击logo跳转到首页
+        menuItemRender={(item, defaultDom) => {
+          setPathname(item.path || '/');
+          console.log("item is ",item.path)
+          return <Link to={item.path}>{defaultDom}</Link> }}
+        {...settings}
       >
-        <Breadcrumb>
-          {breadcrumbs().map((aaa, index) => {
-            const { breadcrumb, path, title } = aaa;
-            return index + 1 === breadcrumbs.length ? (
-              breadcrumb
-            ) : (
-              <Breadcrumb.Item key={path} href={path || ''}>
-                {breadcrumb || title}
-              </Breadcrumb.Item>
-            );
-          })}
-        </Breadcrumb>
-        <Content
+                <Content
           className="site-layout-background"
           style={{
             padding: 24,
@@ -244,8 +181,8 @@ function BasicLayout(props: {
         >
           <React.StrictMode>{props.children}</React.StrictMode>
         </Content>
-      </Layout>
-    </Layout>
+      </ProLayout>
+    </div>
   ) : (
     props.children
   );

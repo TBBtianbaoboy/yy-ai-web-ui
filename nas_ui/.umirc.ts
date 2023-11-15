@@ -1,4 +1,4 @@
-import { siderMemu } from './config/route';
+import route from './config/route';
 import { defineConfig } from 'umi';
 
 export default defineConfig({
@@ -24,11 +24,5 @@ export default defineConfig({
     type: 'none',
   },
   ignoreMomentLocale: true,
-  routes: [
-    {
-      path: '/',
-      component: '@/layouts/index',
-      routes: siderMemu,
-    },
-  ],
+  routes: [route.route],
 });

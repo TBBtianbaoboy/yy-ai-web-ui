@@ -3,9 +3,9 @@ import React from 'react';
 
 const menuIcon = (value: number) => {
   if (value == 1) {
-    return <ClusterOutlined spin />;
+    return <ClusterOutlined />;
   }
-  return <ToolOutlined spin />;
+  return <ToolOutlined />;
 };
 
 export default menuIcon;

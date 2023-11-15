@@ -23,6 +23,7 @@
   "dependencies": {
     "@ahooksjs/use-url-state": "^3.1.1",
     "@ant-design/icons": "^4.2.2",
+    "@ant-design/pro-components": "^2.6.41",
     "@ant-design/pro-layout": "^5.0.12",
     "@umijs/preset-react": "1.x",
     "@umijs/test": "^3.2.16",
