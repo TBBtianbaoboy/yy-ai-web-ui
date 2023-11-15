@@ -1,0 +1,85 @@
+.operation {
+  display: flex;
+  flex-direction: row;
+  margin-left: -15px;
+  .divide {
+    margin: 5px 1px;
+    width: 1px;
+    background-color: #999;
+    height: 20px;
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.myPopover {
+  :global {
+    .ant-popover-inner {
+      min-width: 300px;
+      border-radius: 4px;
+      padding: 5px 10px;
+    }
+    .ant-popover-title {
+      border: none;
+      font-size: 17px;
+    }
+    .ant-popover-inner-content {
+      display: flex;
+      flex-direction: row-reverse;
+    }
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  .options {
+    :global {
+      .ant-select.ant-select-single.ant-select-show-arrow {
+        min-width: 210px;
+        margin: 0 30px;
+      }
+    }
+  }
+}
+
+.flex {
+  display: flex;
+  margin-bottom: 10px !important;
+  :global {
+    .ant-form-item-control-input-content {
+      display: flex !important;
+      margin: 0;
+    }
+    .ant-form-item-label {
+      text-align: left;
+    }
+    .ant-form-item {
+      margin: 0;
+    }
+  }
+}
+
+.logo {
+  width: 240px;
+  height: 240px;
+  margin-left: 30px;
+}
+
+.allkuang {
+  display: flex;
+  align-items: center;
+}
+
+.kuang {
+  border: 2px solid green;
+  border-radius: 15px;
+  width: 300px;
+  height: 300px;
+}

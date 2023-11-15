@@ -1,0 +1,24 @@
+@import '../node_modules/antd/dist/antd.css';
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+.ant-layout-content.site-layout-background {
+  padding: 24px 0 !important;
+}
+
+.ant-table-expanded-row-fixed {
+  min-height: 700px;
+}
+
+.ant-layout.ant-layout-has-sider > .ant-layout,
+.ant-layout.ant-layout-has-sider > .ant-layout-content {
+  width: auto;
+}

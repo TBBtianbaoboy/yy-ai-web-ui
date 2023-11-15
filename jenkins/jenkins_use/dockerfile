@@ -1,0 +1,7 @@
+FROM jenkins/jenkins:latest
+USER root
+COPY --chown=0:0 ./sources.list /etc/apt/sources.list
+RUN apt-get update && apt-get install -y nginx && mkdir /run/nginx \
+    && sed -i 's#exec java#nginx \&\& exec java#g' /usr/local/bin/jenkins.sh
+COPY --chown=0:0 ./nginx.conf /etc/nginx/nginx.conf
+HEALTHCHECK --interval=5m --timeout=3s CMD curl --fail -s http://127.0.0.1:8080/login || exit 1
