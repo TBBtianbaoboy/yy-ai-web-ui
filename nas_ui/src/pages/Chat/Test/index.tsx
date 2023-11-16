@@ -1,54 +1,185 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { postChatTestApi } from '@/services/chat';
 import styles from './index.less';
-import { Layout, Input, Button, List, Avatar } from 'antd';
-import { UserOutlined, SendOutlined } from '@ant-design/icons';
+import {
+  MenuProps,
+  Layout,
+  Input,
+  Button,
+  List,
+  Divider,
+  Avatar,
+  Dropdown,
+  Space,
+  message,
+} from 'antd';
+import { UserOutlined, SendOutlined, EditOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css'; // 引入antd样式文件
+import logo from '@/asserts/image/icon/logo.svg';
+import Title from 'antd/lib/typography/Title';
 
-const { Header, Content, Footer, Sider } = Layout;
-const { TextArea } = Input;
+const { Content, Footer, Sider } = Layout;
 
-const messages = [
+export interface SessionData {
+  sessionId: string;
+  sessionName: string;
+}
+
+export interface MessageData {
+  sender: string;
+  avatar: string;
+  content: string;
+  direction: string;
+}
+
+const defaultSession: SessionData[] = [
   {
-    sender: '张三',
-    avatar: 'https://placekitten.com/64/64',
-    content: '你好！',
-    direction: 'left', // 消息方向，左侧是对方，右侧是自己
+    sessionId: '1',
+    sessionName: '张三的对话',
   },
-  // ... 更多消息对象
+  {
+    sessionId: '2',
+    sessionName: '李四的对话',
+  },
 ];
 
+// export const session_items: MenuProps['items'] = [
+//   {
+//     label: '重命名',
+//     key: '1',
+//   },
+//   {
+//     label: '删除',
+//     key: '2',
+//   },
+//   {
+//     label: '分享',
+//     key: '3',
+//   },
+// ];
+// const handleMenuClick: MenuProps['onClick'] = e => {
+//   console.log('click', e);
+// };
+//
+// const sessionMenuProps = {
+//   session_items,
+//   onClick: handleMenuClick,
+// };
+
 export default function IndexPage() {
+  const [currentMessages, setCurrentMessages] = useState<MessageData[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string>('');
+  const [inputValue, setInputValue] = useState('');
+
+  // 点击发送按钮时触发
+  const sendChatRequest = () => {
+    if (inputValue === '') {
+      message.error('发送内容不能为空');
+      return;
+    }
+    const newMessage: MessageData = {
+      sender: 'You',
+      avatar: 'https://avatars.githubusercontent.com/u/53380609?s=200&v=4',
+      content: inputValue,
+      direction: 'right',
+    };
+    setCurrentMessages(prevMessages => [...prevMessages, newMessage]);
+    postChatTestApi({ model_name: 'gpt-4-1106-preview', question: inputValue }).then(
+      res => {
+        if (res) {
+          const newMessage: MessageData = {
+            sender: 'OpenAI',
+            avatar:
+              'https://avatars.githubusercontent.com/u/53380609?s=200&v=4',
+            content: res.answer,
+            direction: 'left',
+          };
+          setCurrentMessages(prevMessages => [...prevMessages, newMessage]);
+          setInputValue('');
+        }
+      },
+    );
+  };
+
   return (
     <Layout style={{ height: '100vh' }}>
       <Layout>
-        <Sider width={200} style={{ background: '#fff', textAlign: "center" }}>
+        <Sider
+          width={200}
+          style={{ background: '#ffffff', textAlign: 'center' }}
+        >
           <Button
             type="primary"
+            shape="round"
+            size="middle"
             icon={<UserOutlined />}
-            style={{ textAlign: 'center' }}
+            style={{ textAlign: 'center', height: '30px' }}
           >
             新建对话
           </Button>
           <List
+            bordered
+            style={{
+              marginTop: '10px',
+              textAlign: 'left',
+              height: 'calc(100vh)',
+              overflow: 'auto',
+            }}
             itemLayout="horizontal"
-            dataSource={['aaa']} // 此处填入联系人数据
+            dataSource={defaultSession}
             renderItem={item => (
-              <List.Item>
+              <List.Item
+                actions={[
+                  // <Dropdown > aaa </Dropdown>,
+                  <Button
+                    type="primary"
+                    icon={<EditOutlined />}
+                    onClick={() => {
+                      setCurrentSessionId(item.sessionId);
+                      // setCurrentMessages(map.get(item.sessionId) || []);
+                    }}
+                  />,
+                ]}
+              >
                 <List.Item.Meta
-                  avatar={<Avatar icon={<UserOutlined />} />}
-                  title={<a href="javascript:;">{'aaa'}</a>} // 联系人姓名
-                  description="最后一条消息" // 最后一条消息概览
+                  title={item.sessionName}
+                  // style={{ padding: '10px 20px' }}
+                  style={{
+                    padding: '10px 20px',
+                    background:
+                      currentSessionId === item.sessionId ? '#e6f7ff' : '',
+                  }}
                 />
               </List.Item>
             )}
           />
         </Sider>
         <Layout style={{ paddingLeft: '24px' }}>
-          <Content style={{ padding: '0 24px', minHeight: 280 }}>
-            {/* 消息列表 */}
+          <Content // 聊天区
+            style={{ padding: '0 24px', minHeight: 280, overflowY: 'scroll' }}
+          >
+            <div style={{ textAlign: 'center', padding: '10px 0' }}>
+              <h2> 对话区</h2>
+              <Divider />
+            </div>
             <List
               itemLayout="horizontal"
-              dataSource={messages}
+              locale={{
+                emptyText: (
+                  <div>
+                    <img
+                      style={{ marginTop: '100px' }}
+                      src={logo}
+                      width={100}
+                      height={100}
+                    ></img>
+                    <Title style={{ marginTop: '20px' }} level={4}>
+                      我能帮助你什么？
+                    </Title>
+                  </div>
+                ),
+              }}
+              dataSource={currentMessages}
               renderItem={item => (
                 <List.Item
                   style={{
@@ -77,16 +208,26 @@ export default function IndexPage() {
               )}
             />
           </Content>
-          <Footer style={{ textAlign: 'left', padding: '10px 20px' }}>
-            {/* 输入区 */}
-            <TextArea rows={4} />
-            <Button
-              type="primary"
-              icon={<SendOutlined />}
-              style={{ marginTop: '10px' }}
-            >
-              发送
-            </Button>
+          <Footer
+            style={{ textAlign: 'left', padding: '10px 20px' }}
+            hidden={currentSessionId === ''}
+          >
+            <Space.Compact style={{ width: '100%' }}>
+              <Input
+                placeholder="在此输入你想要咨询的内容, 比如: 李白是谁？有哪些经典的作品？"
+                onChange={e => {
+                  setInputValue(e.target.value); // 每次输入发生变化时更新
+                }}
+                value={inputValue}
+              />
+              <Button
+                type="primary"
+                onClick={sendChatRequest}
+                disabled={inputValue === ''}
+              >
+                发送
+              </Button>
+            </Space.Compact>
           </Footer>
         </Layout>
       </Layout>

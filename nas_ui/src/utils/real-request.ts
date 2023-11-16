@@ -63,7 +63,7 @@ const axiosInstance: LocalAxiosInstance = axios.create({
 //  */
 axiosInstance.interceptors.request.use(config => {
   config.headers ??= {}
-  config.headers.Authorization = `bearer ${getToken()}`
+  config.headers.Authorization = `nas ${getToken()}`
 
   return config
 })
