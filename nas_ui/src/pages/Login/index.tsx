@@ -25,7 +25,7 @@ export default function IndexPage() {
   // 在进入登录页面时，如果已经登录过，则直接跳转到聊天页面
   useEffect(() => {
     if (localStorage.getItem('token')) {
-      history.push('/asset');
+      history.push('/chat');
     }
   }, []);
 
@@ -40,7 +40,7 @@ export default function IndexPage() {
           );
           localStorage.setItem(LOGIN_UID, '' + res.uid);
           localStorage.setItem(LOGIN_USERNAME, '' + res.username);
-          history.push('/asset');
+          history.push('/chat');
         }
       });
     });

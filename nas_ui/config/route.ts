@@ -12,93 +12,82 @@ export default {
         name: '登录NAS',
         hideInMenu: true,
       },
-      // 测试页面
-      {
-        path: '/test',
-        component: '@/pages/Test/index',
-      },
       //主页面反向代理
       {
         path: '/',
         redirect: '/login',
-        wrappers: ['@/wrappers/auth'],
         exact: true, // 只有当路径完全匹配时才会触发当前路由
       },
       {
-        path: '/asset',
-        name: '资产管理',
+        path: '/chat',
+        name: 'Chat',
         icon: menuIcon(1),
-        wrappers: ['@/wrappers/auth'],
         routes: [
-          //代理跳转
           {
-            path: '/asset',
-            redirect: '/asset/web',
-            exact: true,
-          },
-          //主机资产详情路由
-          {
-            path: '/asset/web/detail',
-            name: '主机资产详情',
-            component: '@/pages/Asset/Monitor/Detail/index',
-            routes: [
-              {
-                path: '/asset/web/detail',
-                redirect: '/asset/web/detail/property',
-              },
-              {
-                path: '/asset/web/detail/property',
-                name: '性能监控',
-                exact: true,
-                component: '@/pages/Asset/Monitor/Detail/Property',
-              },
-              {
-                path: '/asset/web/detail/port',
-                exact: true,
-                name: '开放端口扫描',
-                component: '@/pages/Asset/Monitor/Detail/Port',
-              },
-              {
-                path: '/asset/web/detail/visit',
-                exact: true,
-                name: '访问控制',
-                component: '@/pages/Asset/Monitor/Detail/VisitorControl',
-              },
-              {
-                path: '/asset/web/detail/baseline',
-                exact: true,
-                name: '基线扫描',
-                component: '@/pages/Asset/Monitor/Detail/Baseline',
-              },
-            ],
-          },
-          // 主机资产首页 ok
-          {
-            path: '/asset/web',
-            component: '@/pages/Asset/Monitor/index',
-            name: '主机资产',
-            exact: true,
+            path: '/chat',
+            redirect: '/chat/test',
           },
           {
-            path: '/asset/monitor/:id',
-            component: '@/pages/Asset/Monitor/Detail/index',
-            name: '资产详情',
-          },
-          // 网络资产首页
-          {
-            path: '/asset/scan',
-            name: '网络资产',
-            component: '@/pages/Asset/Scan/index',
+            path: '/chat/test',
+            component: '@/pages/Chat/Test/index',
+            name: '测试',
           },
           {
-            path: '/asset/scan/detail',
-            component: '@/pages/Asset/Scan/Detail/index',
-            name: '网络资产详情',
+            path: '/chat/no_context',
+            component: '@/pages/Chat/NoContext/index',
+            name: '默认',
           },
           {
-            path: '/asset/scan/detail/target',
-            component: '@/pages/Asset/Scan/Detail/Ip/index',
-            name: '网络资产IP详情',
+            path: '/chat/context',
+            component: '@/pages/Chat/Context/index',
+            name: '上下文对话',
+          },
+        ],
+      },
+      {
+        path: '/image',
+        name: 'Image',
+        icon: menuIcon(1),
+        routes: [
+          {
+            path: '/image',
+            redirect: '/image/generate',
+          },
+          {
+            path: '/image/generate',
+            component: '@/pages/Image/Generate/index',
+            name: '生成图片',
+          },
+          {
+            path: '/image/edit',
+            component: '@/pages/Image/Edit/index',
+            name: '编辑图片',
+          },
+          {
+            path: '/image/variation',
+            component: '@/pages/Image/Variation/index',
+            name: '变换图片',
+          },
+        ],
+      },
+      {
+        path: '/audio',
+        name: 'Audio',
+        icon: menuIcon(1),
+        routes: [
+          {
+            path: '/audio',
+            redirect: '/audio/tts',
+          },
+          {
+            path: '/audio/tts',
+            component: '@/pages/Audio/Tts/index',
+            name: '文本转语音',
+          },
+          {
+            path: '/audio/stt',
+            component: '@/pages/Audio/Stt/index',
+            name: '语音转文本',
           },
         ],
       },
@@ -132,19 +121,22 @@ export default {
       {
         path: '/help_center',
         name: '帮助中心',
-        component: '@/pages/Help/index',
+        icon: menuIcon(2),
+        routes: [
+          {
+            path: '/help_center/agent_use',
+            name: 'Agent使用说明',
+            component: '@/pages/Help/index',
+          },
+        ],
       },
-      // {
-      //   path: '/help_center/agent_use',
-      //   name: 'Agent使用说明',
-      //   component: '@/pages/Help/AgentTeach/index',
-      // },
       //页面出错
-      // {
-      //   path: '/404',
-      //   name: '找不到页面',
-      //   component: '@/pages/404',
-      // },
+      {
+        path: '/404',
+        name: '找不到页面',
+        component: '@/pages/404',
+        hideInMenu: true,
+      },
     ],
   },
 };

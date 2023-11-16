@@ -1,11 +1,8 @@
-import styles from './index.less';
-import React, { Fragment, useEffect, useState } from 'react';
-import { Breadcrumb, Button, Dropdown, Layout, Menu, MenuProps } from 'antd';
+import React, { useEffect, useState } from 'react';
 import { history,useLocation,Link } from 'umi';
+import logo from '../asserts/image/icon/logo.svg';
 import {
   LogoutOutlined,
-  InfoCircleTwoTone,
-  UserOutlined,
 } from '@ant-design/icons';
 import {
   GithubFilled,
@@ -17,10 +14,8 @@ import {
 import type { ProSettings } from '@ant-design/pro-components';
 import { PageContainer, ProCard, ProLayout } from '@ant-design/pro-components';
 import { Input } from 'antd';
-import defaultProps from '../../config/route';
-
-const { SubMenu } = Menu;
-const { Header, Content, Sider, Footer } = Layout;
+import CustomRoutes from '../../config/route';
+import {bgLayoutImgList,appList} from './config';
 
 function BasicLayout(props: {
   children:
@@ -32,7 +27,34 @@ function BasicLayout(props: {
     | undefined;
 }) {
 
-  const [pathname, setPathname] = useState('/asset');
+  const location = useLocation();
+  // const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  // const [openKeys, setOpenKeys] = useState<string[]>([]);
+
+    // 根据当前的location设置菜单选中和展开的状态
+  // useEffect(() => {
+  //   const pathname = location.pathname || '/';
+  //   console.log('pathname', pathname);
+  //   // 假设你的路由结构是这样的：/some-page/sub-page，此时我们以'/'为分隔符获取所有层级的路由
+  //   const paths = pathname.split('/').filter((p) => p);
+  //   console.log('paths', paths);
+  //
+  //   // 新的selectedKeys是当前页面的路由
+  //   const newSelectedKeys = [pathname];
+  //   // 新的openKeys是所有父级菜单路由
+  //   const newOpenKeys = paths.map((_, index, arr) => `/${arr.slice(0, index + 1).join('/')}`);
+  //
+  //   setSelectedKeys(newSelectedKeys);
+  //   setOpenKeys(newOpenKeys);
+  //   console.log('selectedKeys', selectedKeys);
+  //   console.log('openKeys', openKeys);
+  // }, [location]);
+
+
+  // 处理 SubMenu 展开/关闭事件
+  // const onOpenChange = (keys) => {
+  //   setOpenKeys(keys);
+  // };
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -40,25 +62,15 @@ function BasicLayout(props: {
     history.push('/');
   };
 
-  // const uid = (uid_tmp: string | null) => {
-  //   if (uid_tmp == '1') return false;
-  //   return true;
-  // };
-
-  // const hiddenSubMenu = (title: string | undefined) => {
-  //   if (title == '用户管理' || title == '日志审计' || title == '主机资产') {
-  //     return uid(localStorage.getItem('uid'));
-  //   }
-  // };
-
-    const settings: ProSettings | undefined = {
+  const settings: ProSettings | undefined = {
     fixSiderbar: true,
-    layout: 'mix',
+    layout: 'top', // 顶部导航
     splitMenus: true,
   };
 
-console.log("pathname is ",pathname)
-  return  pathname !== '/login' ? (
+  const username = localStorage.getItem('username');
+  const pathname = location.pathname || '/';
+  return pathname !== '/404' && pathname !== '/login' ? (
     <div
       id="test-pro-layout"
       style={{
@@ -66,39 +78,19 @@ console.log("pathname is ",pathname)
       }}
     >
       <ProLayout
-        bgLayoutImgList={[
-          {
-            src: 'https://img.alicdn.com/imgextra/i2/O1CN01O4etvp1DvpFLKfuWq_!!6000000000279-2-tps-609-606.png',
-            left: 85,
-            bottom: 100,
-            height: '303px',
-          },
-          {
-            src: 'https://img.alicdn.com/imgextra/i2/O1CN01O4etvp1DvpFLKfuWq_!!6000000000279-2-tps-609-606.png',
-            bottom: -68,
-            right: -45,
-            height: '303px',
-          },
-          {
-            src: 'https://img.alicdn.com/imgextra/i3/O1CN018NxReL1shX85Yz6Cx_!!6000000005798-2-tps-884-496.png',
-            bottom: 0,
-            left: 0,
-            width: '331px',
-          },
-        ]}
-        {...defaultProps}
+        bgLayoutImgList={bgLayoutImgList} // 背景图片
+        appList={appList} // 应用列表
+        {...CustomRoutes} // 自定义路由
         // route={}
-        location={{
-          pathname,
-        }}
-        menu={{
-          type: 'group',
-        }}
+        location={location}
+        menu={{ type: 'group', }}
         avatarProps={{
           src: 'https://gw.alipayobjects.com/zos/antfincdn/efFD%24IOql2/weixintupian_20170331104822.jpg',
           size: 'small',
-          title: '七妮妮',
+          title: username,
         }}
+        logo={<img src={logo}></img>} // logo
+        title="Net AI"
         actionsRender={(props) => {
           if (props.isMobile) return [];
           return [
@@ -145,7 +137,6 @@ console.log("pathname is ",pathname)
             <GithubFilled key="GithubFilled" />,
             <LogoutOutlined key="LogoutOutlined" onClick={() => {
             logout();
-
             }} />,
           ];
         }}
@@ -164,23 +155,32 @@ console.log("pathname is ",pathname)
           );
         }}
         onMenuHeaderClick={()=>{ history.push('/') }} // 点击logo跳转到首页
-        menuItemRender={(item, defaultDom) => {
-          setPathname(item.path || '/');
-          console.log("item is ",item.path)
-          return <Link to={item.path}>{defaultDom}</Link> }}
+
+      menuItemRender={ (menuItemProps, defaultDom) => {
+    if (menuItemProps.isUrl || menuItemProps.children || !menuItemProps.path) {
+      return defaultDom;
+    }
+    return <Link to={menuItemProps.path}>{defaultDom}</Link>;
+  }} // 自定义菜单项渲染
+      subMenuItemRender={ (menuItemProps, defaultDom) => {
+    if (menuItemProps.isUrl || menuItemProps.children || !menuItemProps.path) {
+      return defaultDom;
+    }
+    return <Link to={menuItemProps.path}>{defaultDom}</Link>;
+  }} // 自定义菜单项渲染
+
         {...settings}
       >
-                <Content
-          className="site-layout-background"
-          style={{
-            padding: 24,
-            margin: 0,
-            minHeight: '100%',
-            minWidth: 1200,
-          }}
-        >
+<PageContainer>
+          <ProCard
+            style={{
+              height: '100vh',
+              minHeight: 800,
+            }}
+          >
           <React.StrictMode>{props.children}</React.StrictMode>
-        </Content>
+          </ProCard>
+        </PageContainer>
       </ProLayout>
     </div>
   ) : (
