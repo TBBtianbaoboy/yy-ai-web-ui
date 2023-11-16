@@ -171,15 +171,8 @@ function BasicLayout(props: {
 
         {...settings}
       >
-<PageContainer>
-          <ProCard
-            style={{
-              height: '100vh',
-              minHeight: 800,
-            }}
-          >
+      <PageContainer breadcrumbRender={false} title={false}>
           <React.StrictMode>{props.children}</React.StrictMode>
-          </ProCard>
         </PageContainer>
       </ProLayout>
     </div>

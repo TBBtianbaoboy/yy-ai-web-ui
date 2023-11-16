@@ -21,7 +21,7 @@ export default {
       {
         path: '/chat',
         name: 'Chat',
-        icon: menuIcon(1),
+        icon: menuIcon('chat'),
         routes: [
           {
             path: '/chat',
@@ -47,7 +47,7 @@ export default {
       {
         path: '/image',
         name: 'Image',
-        icon: menuIcon(1),
+        icon: menuIcon('image'),
         routes: [
           {
             path: '/image',
@@ -73,7 +73,7 @@ export default {
       {
         path: '/audio',
         name: 'Audio',
-        icon: menuIcon(1),
+        icon: menuIcon('audio'),
         routes: [
           {
             path: '/audio',
@@ -94,7 +94,7 @@ export default {
       {
         path: '/config',
         name: '系统配置',
-        icon: menuIcon(2),
+        icon: menuIcon('config'),
         routes: [
           {
             path: '/config',
@@ -121,11 +121,11 @@ export default {
       {
         path: '/help_center',
         name: '帮助中心',
-        icon: menuIcon(2),
+        icon: menuIcon('help'),
         routes: [
           {
             path: '/help_center/agent_use',
-            name: 'Agent使用说明',
+            name: '使用说明',
             component: '@/pages/Help/index',
           },
         ],
