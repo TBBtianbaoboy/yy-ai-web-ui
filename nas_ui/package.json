@@ -21,6 +21,7 @@
     ]
   },
   "dependencies": {
+    "@fortaine/fetch-event-source": "^3.0.6",
     "@ahooksjs/use-url-state": "^3.1.1",
     "@ant-design/icons": "^4.2.2",
     "@ant-design/pro-components": "^2.6.41",
