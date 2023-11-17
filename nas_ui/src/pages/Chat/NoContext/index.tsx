@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { chatDefaultApi } from '@/services/chat';
 import { LOGIN_TOKEN } from '@/utils/constant';
 import { fetchEventSource } from '@fortaine/fetch-event-source';
+import { ViewMarkdown } from '@/components/MarkDown/CodeBlock';
+import './index.less';
 import {
   Layout,
   Input,
@@ -18,6 +20,7 @@ import logo from '@/asserts/image/icon/logo.svg';
 import Title from 'antd/lib/typography/Title';
 
 const { Content, Footer, Sider } = Layout;
+const { TextArea } = Input;
 
 export interface SessionData {
   sessionId: string;
@@ -46,6 +49,7 @@ export default function IndexPage() {
   const [currentMessages, setCurrentMessages] = useState<MessageData[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [inputValue, setInputValue] = useState('');
+  const [chatFinished, setChatFinished] = useState(true);
 
   const updateLastMessageContent = (newContent: string) => {
     setCurrentMessages(prevMessages => {
@@ -71,13 +75,19 @@ export default function IndexPage() {
       message.error('发送内容不能为空');
       return;
     }
+    if (!chatFinished) {
+      message.error('请等待上一条消息处理完成');
+      return;
+    }
+    const input = inputValue;
     const newMessage: MessageData = {
       sender: 'You',
       avatar: 'https://avatars.githubusercontent.com/u/53380609?s=200&v=4',
-      content: inputValue,
+      content: input,
       direction: 'right',
     };
     setCurrentMessages(prevMessages => [...prevMessages, newMessage]);
+    setInputValue('');
 
     const controller = new AbortController();
     let finished = false;
@@ -94,7 +104,7 @@ export default function IndexPage() {
       method: 'POST',
       body: JSON.stringify({
         model_name: 'gpt-4-1106-preview',
-        question: inputValue,
+        question: input,
       }),
       signal: controller.signal,
       headers: {
@@ -118,6 +128,7 @@ export default function IndexPage() {
           direction: 'left',
         };
         setCurrentMessages(prevMessages => [...prevMessages, newMessage]);
+        setChatFinished(false);
       },
       onmessage(msg) {
         if (msg.event === 'the end of stream' || finished) {
@@ -128,10 +139,11 @@ export default function IndexPage() {
         console.log('[OpenAI] request response data: ', msg.data);
       },
       onclose() {
-        setInputValue('');
+        setChatFinished(true);
         finish();
       },
       onerror(e) {
+        setChatFinished(true);
         finish();
         message.error('发送失败');
         throw e;
@@ -193,16 +205,24 @@ export default function IndexPage() {
           />
         </Sider>
         <Layout style={{ paddingLeft: '24px' }}>
+          <div style={{ textAlign: 'center', padding: '10px 0' }}>
+            <h3 className="h3">
+              <span className="span">第八区</span>
+            </h3>
+            <Divider />
+          </div>
           <Content // 聊天区
-            style={{ padding: '0 24px', minHeight: 280, overflowY: 'scroll' }}
+            style={{
+              padding: '0 24px',
+              minHeight: 280,
+              overflowY: 'scroll',
+              border: '2px solid #eee000',
+            }}
           >
-            <div style={{ textAlign: 'center', padding: '10px 0' }}>
-              <h2> 对话区</h2>
-              <Divider />
-            </div>
             <List
               itemLayout="horizontal"
               locale={{
+                // 当 List 中没有元素时显示的内容
                 emptyText: (
                   <div>
                     <img
@@ -239,10 +259,11 @@ export default function IndexPage() {
                             ? 'rgba(0, 0, 0, 0.65)'
                             : '#fff',
                         whiteSpace: 'pre-wrap', // 解析换行符和空格
-                        maxWidth: '80%', // 限制内容最大宽度为父容器的80%, 超出部分自动换行
+                        // maxWidth: '80%', // 限制内容最大宽度为父容器的80%, 超出部分自动换行
+                        width: 'fit-content', // 限制内容最小宽度为内容的宽度
                       }}
                     >
-                      {item.content}
+                      <ViewMarkdown textContent={item.content} />
                     </div>
                     {item.direction === 'right' && <Avatar src={item.avatar} />}
                   </div>
@@ -255,17 +276,26 @@ export default function IndexPage() {
             hidden={currentSessionId === ''}
           >
             <Space.Compact style={{ width: '100%' }}>
-              <Input
-                placeholder="在此输入你想要咨询的内容, 比如: 李白是谁？有哪些经典的作品？"
+              <TextArea
+                placeholder="在此输入你想要咨询的内容，比如：李白是谁？有哪些经典的作品？\n 按下 Ctrl + Enter 发送"
+                className="TextArea"
                 onChange={e => {
                   setInputValue(e.target.value); // 每次输入发生变化时更新
+                }}
+                onKeyDown={e => {
+                  // 按下 Ctrl + Enter 发送
+                  if (e.key === 'Enter' && e.ctrlKey) {
+                    sendChatRequest();
+                  }
                 }}
                 value={inputValue}
               />
               <Button
                 type="primary"
+                className="Button"
+                shape="round"
                 onClick={sendChatRequest}
-                disabled={inputValue === ''}
+                disabled={inputValue === '' || !chatFinished}
               >
                 发送
               </Button>

@@ -21,11 +21,11 @@
     ]
   },
   "dependencies": {
-    "@fortaine/fetch-event-source": "^3.0.6",
     "@ahooksjs/use-url-state": "^3.1.1",
     "@ant-design/icons": "^4.2.2",
     "@ant-design/pro-components": "^2.6.41",
     "@ant-design/pro-layout": "^5.0.12",
+    "@fortaine/fetch-event-source": "^3.0.6",
     "@umijs/preset-react": "1.x",
     "@umijs/test": "^3.2.16",
     "ahooks": "^3.1.1",
@@ -34,14 +34,17 @@
     "echarts": "^5.2.2",
     "lint-staged": "^10.0.7",
     "prettier": "^1.19.1",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-infinite-scroll-component": "^6.1.0",
+    "react-markdown": "^8.0.5",
+    "react-syntax-highlighter": "^15.4.5",
     "umi": "^3.2.16",
     "use-react-router-breadcrumbs": "^3.0.1",
     "yorkie": "^2.0.0"
   },
   "devDependencies": {
-    "@types/qs": "^6.9.7"
+    "@types/qs": "^6.9.7",
+    "@types/react-syntax-highlighter": "^15.5.10"
   }
 }
