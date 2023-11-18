@@ -2,22 +2,11 @@ import { useState } from 'react';
 import { chatDefaultApi } from '@/services/chat';
 import { LOGIN_TOKEN } from '@/utils/constant';
 import { fetchEventSource } from '@fortaine/fetch-event-source';
-import { ViewMarkdown } from '@/components/MarkDown/CodeBlock';
+import { MessageData, MessageList } from '@/components/MessageList/MessageList';
 import './index.less';
-import {
-  Layout,
-  Input,
-  Button,
-  List,
-  Divider,
-  Avatar,
-  Space,
-  message,
-} from 'antd';
+import { Layout, Input, Button, List, Divider, Space, message } from 'antd';
 import { UserOutlined, EditOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css'; // 引入antd样式文件
-import logo from '@/asserts/image/icon/logo.svg';
-import Title from 'antd/lib/typography/Title';
 
 const { Content, Footer, Sider } = Layout;
 const { TextArea } = Input;
@@ -25,13 +14,6 @@ const { TextArea } = Input;
 export interface SessionData {
   sessionId: string;
   sessionName: string;
-}
-
-export interface MessageData {
-  sender: string;
-  avatar: string;
-  content: string;
-  direction: string;
 }
 
 const defaultSession: SessionData[] = [
@@ -139,6 +121,7 @@ export default function IndexPage() {
         console.log('[OpenAI] request response data: ', msg.data);
       },
       onclose() {
+        console.log('close');
         setChatFinished(true);
         finish();
       },
@@ -150,6 +133,10 @@ export default function IndexPage() {
       },
       openWhenHidden: true,
     });
+  };
+
+  const stopChatRequest = () => {
+    message.info('已停止');
   };
 
   return (
@@ -205,73 +192,26 @@ export default function IndexPage() {
           />
         </Sider>
         <Layout style={{ paddingLeft: '24px' }}>
-          <div style={{ textAlign: 'center', padding: '10px 0' }}>
+          <div // 标题区------
+            style={{ textAlign: 'center', padding: '10px 0' }}
+          >
             <h3 className="h3">
               <span className="span">第八区</span>
             </h3>
             <Divider />
           </div>
-          <Content // 聊天区
+          <Content // 聊天区------
             style={{
               padding: '0 24px',
               minHeight: 280,
-              overflowY: 'scroll',
               border: '2px solid #eee000',
+              borderRadius: '10px',
+              height: '80vh',
             }}
           >
-            <List
-              itemLayout="horizontal"
-              locale={{
-                // 当 List 中没有元素时显示的内容
-                emptyText: (
-                  <div>
-                    <img
-                      style={{ marginTop: '100px' }}
-                      src={logo}
-                      width={100}
-                      height={100}
-                    ></img>
-                    <Title style={{ marginTop: '20px' }} level={4}>
-                      我能帮助你什么？
-                    </Title>
-                  </div>
-                ),
-              }}
-              dataSource={currentMessages}
-              renderItem={item => (
-                <List.Item // 每个消息元素
-                  style={{
-                    justifyContent:
-                      item.direction === 'left' ? 'flex-start' : 'flex-end',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-                    {item.direction === 'left' && <Avatar src={item.avatar} />}
-                    <div
-                      style={{
-                        margin: '0 8px',
-                        padding: '10px',
-                        borderRadius: '4px',
-                        backgroundColor:
-                          item.direction === 'left' ? '#f3f3f3' : '#a0d911',
-                        color:
-                          item.direction === 'left'
-                            ? 'rgba(0, 0, 0, 0.65)'
-                            : '#fff',
-                        whiteSpace: 'pre-wrap', // 解析换行符和空格
-                        // maxWidth: '80%', // 限制内容最大宽度为父容器的80%, 超出部分自动换行
-                        width: 'fit-content', // 限制内容最小宽度为内容的宽度
-                      }}
-                    >
-                      <ViewMarkdown textContent={item.content} />
-                    </div>
-                    {item.direction === 'right' && <Avatar src={item.avatar} />}
-                  </div>
-                </List.Item>
-              )}
-            />
+            <MessageList currentMessages={currentMessages} />
           </Content>
-          <Footer
+          <Footer // 输入区------
             style={{ textAlign: 'left', padding: '10px 20px' }}
             hidden={currentSessionId === ''}
           >
@@ -290,15 +230,27 @@ export default function IndexPage() {
                 }}
                 value={inputValue}
               />
-              <Button
-                type="primary"
-                className="Button"
-                shape="round"
-                onClick={sendChatRequest}
-                disabled={inputValue === '' || !chatFinished}
-              >
-                发送
-              </Button>
+              {chatFinished ? (
+                <Button
+                  type="primary"
+                  className="Button"
+                  shape="round"
+                  onClick={sendChatRequest}
+                >
+                  发送
+                </Button>
+              ) : (
+                <Button
+                  type="ghost"
+                  className="Button"
+                  shape="round"
+                  onClick={() => {
+                    stopChatRequest();
+                  }}
+                >
+                  停止
+                </Button>
+              )}
             </Space.Compact>
           </Footer>
         </Layout>
