@@ -14,10 +14,11 @@ export interface MessageData {
 
 type messageListProps = {
   currentMessages: MessageData[];
+  type?: string;
 };
 
 export const MessageList = (props: messageListProps) => {
-  const { currentMessages } = props;
+  const { currentMessages, type } = props;
   // 获取列表容器的引用
   const scrollParentRef = useRef();
 
@@ -90,7 +91,15 @@ export const MessageList = (props: messageListProps) => {
                     width: 'fit-content', // 限制内容最小宽度为内容的宽度
                   }}
                 >
-                  <ViewMarkdown textContent={item.content} />
+                  {item.direction === 'left' && type === 'image' ? (
+                    <img
+                      src={'data:image/png;base64,' + item.content}
+                      width={512}
+                      height={512}
+                    />
+                  ) : (
+                    <ViewMarkdown textContent={item.content} />
+                  )}
                 </div>
                 {item.direction === 'right' && <Avatar src={item.avatar} />}
               </div>

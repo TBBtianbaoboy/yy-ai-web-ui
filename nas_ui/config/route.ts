@@ -25,17 +25,12 @@ export default {
         routes: [
           {
             path: '/chat',
-            redirect: '/chat/test',
-          },
-          {
-            path: '/chat/test',
-            component: '@/pages/Chat/Test/index',
-            name: '测试',
+            redirect: '/chat/no_context',
           },
           {
             path: '/chat/no_context',
             component: '@/pages/Chat/NoContext/index',
-            name: '默认',
+            name: '默认对话',
           },
           {
             path: '/chat/context',

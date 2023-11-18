@@ -1,3 +1,42 @@
 .title {
   background: rgb(121, 242, 157);
 }
+
+.TextArea {
+  border: 1px solid #ccc; /* 或使用更浅的颜色，甚至完全移除边框 */
+  border-radius: 8px; /* 设置更大的圆角 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  background-color: #fff; /* 或其他柔和的颜色 */
+  color: #333; /* 保持文字颜色深浅适中，确保可读性 */
+  padding: 15px; /* 或根据设计调整 */
+  line-height: 1.5; /* 通常在1.4到1.6之间 */
+  font-family: 'Roboto', sans-serif; /* 选择适当的字体 */
+  font-size: 16px; /* 保持字号适中，提升阅读体验 */
+  width: 100%; /* 完全适应容器宽度 */
+  text-indent: 8px; /* 根据实际情况调整 */
+  resize: none; /* 禁止用户调整尺寸 */
+  height: 10vh; /* 文本高度 */
+}
+
+.TextArea:hover,
+.TextArea:focus {
+  border-color: blue; /* 醒目颜色表示选中状态 */
+  outline: none; /* 可移除默认聚焦时的外边框 */
+}
+
+.TextArea::placeholder {
+  color: #aaa; /* 设定占位符的颜色 */
+}
+
+.Button {
+  height: 10vh; /* Button 和 TextArea 的高度一致 */
+}
+
+.h3 {
+  font-family: 'Roboto', sans-serif;
+  color: #5a67d8;
+  text-align: center;
+  .span {
+    border-bottom: 2px solid #4c51bf;
+  }
+}
