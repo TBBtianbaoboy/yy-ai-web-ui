@@ -4,12 +4,74 @@ import { LOGIN_TOKEN } from '@/utils/constant';
 import { fetchEventSource } from '@fortaine/fetch-event-source';
 import { MessageData, MessageList } from '@/components/MessageList/MessageList';
 import './index.less';
-import { Layout, Input, Button, List, Divider, Space, message } from 'antd';
-import { FileAddOutlined, EditOutlined,SearchOutlined } from '@ant-design/icons';
+import {
+  Layout,
+  MenuProps,
+  Dropdown,
+  Input,
+  Button,
+  List,
+  Divider,
+  Space,
+  message,
+} from 'antd';
+import {
+  FileAddOutlined,
+  SmileOutlined,
+  MoreOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import 'antd/dist/antd.css'; // 引入antd样式文件
 
 const { Content, Footer, Sider } = Layout;
 const { TextArea } = Input;
+
+const items: MenuProps['items'] = [
+  {
+    key: '1',
+    label: (
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://www.antgroup.com"
+      >
+        1st menu item
+      </a>
+    ),
+  },
+  {
+    key: '2',
+    label: (
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://www.aliyun.com"
+      >
+        2nd menu item (disabled)
+      </a>
+    ),
+    icon: <SmileOutlined />,
+    disabled: true,
+  },
+  {
+    key: '3',
+    label: (
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://www.luohanacademy.com"
+      >
+        3rd menu item (disabled)
+      </a>
+    ),
+    disabled: true,
+  },
+  {
+    key: '4',
+    danger: true,
+    label: 'a danger item',
+  },
+];
 
 export interface SessionData {
   sessionId: string;
@@ -19,7 +81,7 @@ export interface SessionData {
 const defaultSession: SessionData[] = [
   {
     sessionId: '1',
-    sessionName: '张三的对话',
+    sessionName: '张三的对话aaaaaaaaaaaaaaaaaaaaaaaa',
   },
   {
     sessionId: '2',
@@ -165,13 +227,13 @@ export default function IndexPage() {
             renderItem={item => (
               <List.Item
                 actions={[
-                  <Button
-                    type="primary"
-                    icon={<EditOutlined />}
-                    onClick={() => {
-                      setCurrentSessionId(item.sessionId);
-                    }}
-                  />,
+                  <Dropdown menu={{ items }}>
+                    <a onClick={e => e.preventDefault()}>
+                      <Space>
+                        <MoreOutlined />
+                      </Space>
+                    </a>
+                  </Dropdown>,
                 ]}
                 style={{
                   background:
@@ -182,11 +244,21 @@ export default function IndexPage() {
                 }}
               >
                 <List.Item.Meta
-                  title={item.sessionName}
+                  title={
+                    <Button
+                      type="text"
+                      onClick={() => {
+                        setCurrentSessionId(item.sessionId);
+                      }}
+                    >
+                      {item.sessionName}
+                    </Button>
+                  }
                   style={{
                     overflow: 'hidden', // 防止文本溢出
                     whiteSpace: 'nowrap', // 保持单行文本
                     textOverflow: 'ellipsis', // 文本溢出时显示省略号
+                    width: '100%', // 限制宽度
                   }}
                 />
               </List.Item>
