@@ -45,7 +45,7 @@ const addUserApi = '/v1/user/';
 export const addUser = (params: System.AddUserInfo) =>
   request<StatusOk>(addUserApi, {
     method: 'POST',
-    body: params,
+    body: JSON.stringify(params),
   });
 
 // 删除用户
@@ -54,7 +54,7 @@ const deleteUserApi = '/v1/user/';
 export const deleteUser = (params: { uids: number[] | undefined }) =>
   request<ListRes<System.UserListInfo[]>>(deleteUserApi, {
     method: 'DELETE',
-    body: params,
+    body: JSON.stringify(params),
   });
 
 // 重置用户密码

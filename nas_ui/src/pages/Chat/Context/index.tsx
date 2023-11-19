@@ -5,7 +5,7 @@ import { fetchEventSource } from '@fortaine/fetch-event-source';
 import { MessageData, MessageList } from '@/components/MessageList/MessageList';
 import './index.less';
 import { Layout, Input, Button, List, Divider, Space, message } from 'antd';
-import { UserOutlined, EditOutlined } from '@ant-design/icons';
+import { FileAddOutlined, EditOutlined,SearchOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css'; // 引入antd样式文件
 
 const { Content, Footer, Sider } = Layout;
@@ -139,26 +139,21 @@ export default function IndexPage() {
   const stopChatRequest = () => {
     message.error('暂不支持停止会话');
   };
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <Layout style={{ height: '100vh' }}>
       <Layout>
         <Sider
+          collapsible
+          collapsed={collapsed}
+          onCollapse={setCollapsed}
           width={300}
           style={{
             background: '#ffffff',
             textAlign: 'left',
           }}
         >
-          <Button
-            type="primary"
-            shape="round"
-            size="middle"
-            icon={<UserOutlined />}
-            style={{ margin: '10px 0', width: '100%' }}
-          >
-            新建对话
-          </Button>
           <List
             bordered
             style={{
@@ -198,15 +193,29 @@ export default function IndexPage() {
             )}
           />
         </Sider>
-        <Layout style={{ paddingLeft: '24px' }}>
-          <div // 标题区------
-            style={{ textAlign: 'center', padding: '10px 0' }}
+        <Layout style={{ paddingLeft: '12px' }}>
+          <div // 操作区------
+            style={{ padding: '10px 0', display: 'flex' }}
           >
-            <h3 className="h3">
-              <span className="span">第八区</span>
-            </h3>
-            <Divider />
+            <Button
+              type="primary"
+              shape="round"
+              size="middle"
+              style={{ marginRight: '10px' }}
+              icon={<FileAddOutlined />}
+            >
+              新建对话
+            </Button>
+            <Button
+              type="primary"
+              shape="round"
+              size="middle"
+              icon={<SearchOutlined />}
+            >
+              参数设置
+            </Button>
           </div>
+          <Divider />
           <Content // 聊天区------
             style={{
               padding: '0 24px',
