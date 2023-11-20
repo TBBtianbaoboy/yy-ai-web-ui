@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Divider, Descriptions } from 'antd';
 import { useRequest } from 'ahooks';
 import { getAccountInfo } from '@/services/system';
-import moment from 'moment';
 import EditModal from './EditModal';
 import ChangePasswdModal from './ChangePasswdModal';
 import { ContactsOutlined, EditTwoTone } from '@ant-design/icons';

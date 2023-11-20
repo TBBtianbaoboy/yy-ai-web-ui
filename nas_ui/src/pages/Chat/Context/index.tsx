@@ -1,99 +1,56 @@
-import { useState } from 'react';
-import { chatDefaultApi } from '@/services/chat';
+import { useEffect, useState } from 'react';
+import {
+  chatContextApi,
+  postGetAllSessionsApi,
+  postGetSessionMessagesApi,
+  postDeleteSessionApi,
+} from '@/services/chat';
+import * as Chat from '@/types/chat';
 import { LOGIN_TOKEN } from '@/utils/constant';
 import { fetchEventSource } from '@fortaine/fetch-event-source';
 import { MessageData, MessageList } from '@/components/MessageList/MessageList';
 import './index.less';
 import {
   Layout,
-  MenuProps,
   Dropdown,
   Input,
   Button,
+  Tooltip,
+  Menu,
   List,
   Divider,
   Space,
+  Modal,
   message,
 } from 'antd';
 import {
   FileAddOutlined,
-  SmileOutlined,
   MoreOutlined,
   SearchOutlined,
+  ExclamationCircleOutlined,
+  ExportOutlined,
+  DeleteOutlined,
+  EditOutlined,
 } from '@ant-design/icons';
 import 'antd/dist/antd.css'; // 引入antd样式文件
+import { useRequest } from 'ahooks'; // useRequest can not be from umi
 
 const { Content, Footer, Sider } = Layout;
 const { TextArea } = Input;
-
-const items: MenuProps['items'] = [
-  {
-    key: '1',
-    label: (
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://www.antgroup.com"
-      >
-        1st menu item
-      </a>
-    ),
-  },
-  {
-    key: '2',
-    label: (
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://www.aliyun.com"
-      >
-        2nd menu item (disabled)
-      </a>
-    ),
-    icon: <SmileOutlined />,
-    disabled: true,
-  },
-  {
-    key: '3',
-    label: (
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://www.luohanacademy.com"
-      >
-        3rd menu item (disabled)
-      </a>
-    ),
-    disabled: true,
-  },
-  {
-    key: '4',
-    danger: true,
-    label: 'a danger item',
-  },
-];
-
-export interface SessionData {
-  sessionId: string;
-  sessionName: string;
-}
-
-const defaultSession: SessionData[] = [
-  {
-    sessionId: '1',
-    sessionName: '张三的对话aaaaaaaaaaaaaaaaaaaaaaaa',
-  },
-  {
-    sessionId: '2',
-    sessionName: '李四的对话',
-  },
-];
+const { confirm } = Modal;
 
 export default function IndexPage() {
+  const { data, run } = useRequest(() => postGetAllSessionsApi(), {
+    manual: true,
+  });
   const [currentMessages, setCurrentMessages] = useState<MessageData[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [inputValue, setInputValue] = useState('');
   const [chatFinished, setChatFinished] = useState(true);
+
+  useEffect(() => {
+    run();
+  }, []);
 
   const updateLastMessageContent = (newContent: string) => {
     setCurrentMessages(prevMessages => {
@@ -144,11 +101,12 @@ export default function IndexPage() {
     controller.signal.onabort = finish;
     let lastMessage = '';
 
-    fetchEventSource(chatDefaultApi, {
+    fetchEventSource(chatContextApi, {
       method: 'POST',
       body: JSON.stringify({
-        model_name: 'gpt-4-1106-preview',
+        model_name: 'gpt-3.5-turbo-1106',
         question: input,
+        session_id: parseInt(currentSessionId),
       }),
       signal: controller.signal,
       headers: {
@@ -223,11 +181,66 @@ export default function IndexPage() {
               height: 'calc(100vh - 90px)', // 减去按钮和边距所占空间
             }}
             itemLayout="horizontal"
-            dataSource={defaultSession}
+            dataSource={data?.datas || []}
             renderItem={item => (
               <List.Item
                 actions={[
-                  <Dropdown menu={{ items }}>
+                  <Dropdown
+                    overlay={
+                      <Menu
+                        items={[
+                          {
+                            key: '1',
+                            label: (
+                              <Tooltip title="导出" placement="left">
+                                <ExportOutlined style={{ fontSize: '16px' }} />{' '}
+                              </Tooltip>
+                            ),
+                            style: { textAlign: 'center' },
+                          },
+                          {
+                            key: '2',
+                            label: (
+                              <Tooltip title="重命名" placement="left">
+                                <EditOutlined style={{ fontSize: '16px' }} />{' '}
+                              </Tooltip>
+                            ),
+                            style: { textAlign: 'center' },
+                          },
+                          {
+                            key: '3',
+                            label: (
+                              <Tooltip title="删除" placement="left">
+                                <DeleteOutlined
+                                  style={{ fontSize: '16px', color: '#ff4d4f' }}
+                                />{' '}
+                              </Tooltip>
+                            ),
+                            style: { textAlign: 'center' },
+                            onClick: () => {
+                              confirm({
+                                title: '确定要删除吗?',
+                                icon: <ExclamationCircleOutlined />,
+                                content: '删除后将无法恢复，请谨慎操作。',
+                                onOk() {
+                                  postDeleteSessionApi({
+                                    session_id: item.session_id,
+                                  })
+                                    .then(() => run())
+                                    .catch(err => {
+                                      message.error(err.message);
+                                    });
+                                  message.success('删除成功');
+                                },
+                              });
+                            },
+                          },
+                        ]}
+                      />
+                    }
+                    // menu={{ items }}
+                    trigger={['click']}
+                  >
                     <a onClick={e => e.preventDefault()}>
                       <Space>
                         <MoreOutlined />
@@ -237,7 +250,9 @@ export default function IndexPage() {
                 ]}
                 style={{
                   background:
-                    currentSessionId === item.sessionId ? '#e6f7ff' : '',
+                    currentSessionId === item.session_id.toString()
+                      ? '#e6f7ff'
+                      : '',
                   borderRadius: '4px', // 增加轮廓圆角
                   margin: '5px 0', // 列表项间增加间距
                   padding: '10px', // 统一内边距
@@ -248,10 +263,33 @@ export default function IndexPage() {
                     <Button
                       type="text"
                       onClick={() => {
-                        setCurrentSessionId(item.sessionId);
+                        setCurrentSessionId(item.session_id.toString());
+                        postGetSessionMessagesApi({
+                          session_id: item.session_id.toString(),
+                        })
+                          .then(res => {
+                            const messages = res.messages.map(
+                              (message: Chat.GetSessionMessagesDatas) => {
+                                return {
+                                  sender: 'OpenAI',
+                                  avatar:
+                                    'https://avatars.githubusercontent.com/u/53380609?s=200&v=4',
+                                  content: message.content,
+                                  direction:
+                                    message.role === 'assistant'
+                                      ? 'left'
+                                      : 'right',
+                                };
+                              },
+                            );
+                            setCurrentMessages(() => [...messages]);
+                          })
+                          .catch(err => {
+                            message.error(err.message);
+                          });
                       }}
                     >
-                      {item.sessionName}
+                      {item.session_name}
                     </Button>
                   }
                   style={{

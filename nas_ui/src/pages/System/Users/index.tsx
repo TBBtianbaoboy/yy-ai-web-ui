@@ -8,7 +8,6 @@ import { ListReq } from '@/types/common';
 import { UserListInfo } from '@/types/system';
 import { ColumnsType } from 'antd/lib/table/interface';
 import { Key } from 'react';
-import moment from 'moment';
 import { login_status, role_status } from '@/utils/constant';
 import AddUserModal from './AddUserModal';
 import ResetPasswdModal from './ResetPasswdModal';
