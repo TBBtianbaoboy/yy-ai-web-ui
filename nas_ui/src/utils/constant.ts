@@ -159,3 +159,26 @@ export const protocol_type = [
     label: 'ICMP',
   },
 ];
+
+export const model_list = [
+  {
+    value: 'gpt-3.5-turbo-1106',
+    label: 'gpt-3.5-turbo-1106',
+  },
+  {
+    value: 'gpt-3.5-turbo-16k',
+    label: 'gpt-3.5-turbo-16k',
+  },
+  {
+    value: 'gpt-3.5-turbo',
+    label: 'gpt-3.5-turbo',
+  },
+  {
+    value: 'gpt-4',
+    label: 'gpt-4',
+  },
+  {
+    value: 'gpt-4-1106-preview',
+    label: 'gpt-4-1106-preview',
+  },
+];

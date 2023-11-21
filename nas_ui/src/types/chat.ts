@@ -26,3 +26,14 @@ export interface GetSessionMessagesResp {
 export interface DeleteSessionReq {
   session_id: number;
 }
+
+//-------------------------------------
+
+export interface AddSessionReq {
+  session_name: string;
+  model: string;
+  max_tokens: number;
+  temperature: number;
+  stop: string[];
+  system: string;
+}

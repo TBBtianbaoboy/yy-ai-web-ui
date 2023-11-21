@@ -34,6 +34,7 @@ import {
 } from '@ant-design/icons';
 import 'antd/dist/antd.css'; // 引入antd样式文件
 import { useRequest } from 'ahooks'; // useRequest can not be from umi
+import AddSessionModal from './AddSessionModal';
 
 const { Content, Footer, Sider } = Layout;
 const { TextArea } = Input;
@@ -47,6 +48,9 @@ export default function IndexPage() {
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [inputValue, setInputValue] = useState('');
   const [chatFinished, setChatFinished] = useState(true);
+  const [addSession, addSessionHandler] = useState<number | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     run();
@@ -238,7 +242,6 @@ export default function IndexPage() {
                         ]}
                       />
                     }
-                    // menu={{ items }}
                     trigger={['click']}
                   >
                     <a onClick={e => e.preventDefault()}>
@@ -313,6 +316,7 @@ export default function IndexPage() {
               size="middle"
               style={{ marginRight: '10px' }}
               icon={<FileAddOutlined />}
+              onClick={() => addSessionHandler(1)}
             >
               新建对话
             </Button>
@@ -381,6 +385,11 @@ export default function IndexPage() {
           </Footer>
         </Layout>
       </Layout>
+      <AddSessionModal
+        visible={addSession}
+        setVisible={addSessionHandler}
+        updateList={run}
+      />
     </Layout>
   );
 }
