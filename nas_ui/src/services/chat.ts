@@ -27,7 +27,7 @@ export const postDeleteSessionApi = (params: Chat.DeleteSessionReq) =>
   });
 
 export const postAddSessionApi = (params: Chat.AddSessionReq) =>
-  request<StatusOk>(addSessionApi, {
+  request<Chat.AddessionResp>(addSessionApi, {
     method: 'POST',
     body: JSON.stringify(params),
   });

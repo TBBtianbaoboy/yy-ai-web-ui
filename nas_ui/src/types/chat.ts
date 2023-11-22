@@ -18,6 +18,7 @@ export interface GetSessionMessagesDatas {
 
 export interface GetSessionMessagesResp {
   uid: number;
+  model: string;
   messages: GetSessionMessagesDatas[];
 }
 
@@ -36,4 +37,10 @@ export interface AddSessionReq {
   temperature: number;
   stop: string[];
   system: string;
+}
+
+//-------------------------------------
+
+export interface AddessionResp {
+  session_id: number;
 }

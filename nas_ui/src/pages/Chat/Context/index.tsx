@@ -1,11 +1,26 @@
-import { useEffect, useState } from 'react';
-import { chatContextApi, postGetAllSessionsApi } from '@/services/chat';
+import { useEffect, useRef, useState } from 'react';
+import {
+  chatContextApi,
+  postGetAllSessionsApi,
+  postGetSessionMessagesApi,
+} from '@/services/chat';
+import { GetSessionMessagesDatas } from '@/types/chat';
 import { LOGIN_TOKEN } from '@/utils/constant';
 import { fetchEventSource } from '@fortaine/fetch-event-source';
 import { MessageData, MessageList } from '@/components/MessageList/MessageList';
 import './index.less';
-import { Layout, Input, Button, List, Divider, Space, message } from 'antd';
-import { FileAddOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  Typography,
+  Layout,
+  Input,
+  Tooltip,
+  Button,
+  List,
+  Divider,
+  Space,
+  message,
+} from 'antd';
+import { EditTwoTone, CommentOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css'; // 引入antd样式文件
 import AddSessionModal from './AddSessionModal';
 import SiderListItem from './SiderListItem';
@@ -13,6 +28,7 @@ import { useRequest } from 'ahooks'; // useRequest can not be from umi
 
 const { Content, Footer, Sider } = Layout;
 const { TextArea } = Input;
+const { Title } = Typography;
 
 export default function IndexPage() {
   const { data, run } = useRequest(() => postGetAllSessionsApi(), {
@@ -27,10 +43,57 @@ export default function IndexPage() {
   const [addSession, addSessionHandler] = useState<number | undefined>(
     undefined,
   );
+  const [currentModel, setCurrentModel] = useState<string>('');
+
+  const textAreaRef = useRef(null);
+
+  useEffect(() => {
+    const handleKeyDown = event => {
+      if (event.key === 'i' && event.ctrlKey) {
+        const textArea = textAreaRef.current;
+        if (textArea) {
+          textArea.focus();
+        }
+      }
+    };
+
+    // 绑定键盘事件
+    document.addEventListener('keydown', handleKeyDown);
+
+    // 清理函数，在组件卸载时移除事件监听
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []); // 空数组表示仅在组件第一次渲染时添加监听器
 
   useEffect(() => {
     run();
   }, []);
+
+  const clickItemHandler = (session_id: string) => {
+    setCurrentSessionId(session_id);
+    postGetSessionMessagesApi({
+      session_id: session_id,
+    })
+      .then(res => {
+        setCurrentModel(res.model);
+        const messages = res.messages.map(
+          (message: GetSessionMessagesDatas) => {
+            return {
+              sender: 'OpenAI',
+              avatar:
+                'https://avatars.githubusercontent.com/u/53380609?s=200&v=4',
+              content: message.content,
+              direction: message.role === 'assistant' ? 'left' : 'right',
+            };
+          },
+        );
+        setCurrentMessages(() => [...messages]);
+      })
+      .catch(err => {
+        message.error(err.message);
+      });
+  };
 
   const updateLastMessageContent = (newContent: string) => {
     setCurrentMessages(prevMessages => {
@@ -115,7 +178,11 @@ export default function IndexPage() {
         if (msg.event === 'the end of stream' || finished) {
           return finish();
         }
-        lastMessage += msg.data || '\n';
+        if (msg.data === '') {
+          return;
+        }
+        msg.data = msg.data.replaceAll('[Enter]', '\n');
+        lastMessage += msg.data;
         updateLastMessageContent(lastMessage);
         console.log('[OpenAI] request response data: ', msg.data);
       },
@@ -132,32 +199,42 @@ export default function IndexPage() {
       },
       openWhenHidden: true,
     });
-    console.log('finished');
   };
 
   const stopChatRequest = () => {
     message.error('暂不支持停止会话');
   };
-  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <Layout style={{ height: '100vh' }}>
       <Layout>
         <Sider // 侧边栏会话列表
-          collapsible
-          collapsed={collapsed}
-          onCollapse={setCollapsed}
           width={300}
           style={{
             background: '#ffffff',
             textAlign: 'left',
           }}
         >
+          <div // 操作区------
+            style={{ padding: '10px 0', textAlign: 'center' }}
+          >
+            <Button
+              type="primary"
+              shape="round"
+              size="middle"
+              style={{ marginRight: '10px' }}
+              icon={<CommentOutlined />}
+              onClick={() => addSessionHandler(1)}
+            >
+              新建对话
+            </Button>
+          </div>
+
           <List
             bordered
             style={{
               overflowY: 'scroll', // 优化滚动
-              height: 'calc(100vh - 90px)', // 减去按钮和边距所占空间
+              height: '100vh', // 减去按钮和边距所占空间
             }}
             itemLayout="horizontal"
             dataSource={data?.datas || []}
@@ -165,36 +242,28 @@ export default function IndexPage() {
               <SiderListItem
                 item={item}
                 currentSessionId={currentSessionId}
-                setCurrentSessionId={setCurrentSessionId}
+                clickItemHandler={clickItemHandler}
+                updateListItem={run}
                 setCurrentMessages={setCurrentMessages}
-                updateList={run}
+                setCurrentModel={setCurrentModel}
+                setCurrentSession={setCurrentSessionId}
               />
             )}
           />
         </Sider>
         <Layout style={{ paddingLeft: '12px' }}>
-          <div // 操作区------
-            style={{ padding: '10px 0', display: 'flex' }}
-          >
-            <Button
-              type="primary"
-              shape="round"
-              size="middle"
-              style={{ marginRight: '10px' }}
-              icon={<FileAddOutlined />}
-              onClick={() => addSessionHandler(1)}
-            >
-              新建对话
-            </Button>
-            <Button
-              type="primary"
-              shape="round"
-              size="middle"
-              icon={<SearchOutlined />}
-            >
-              参数设置
-            </Button>
-          </div>
+          <Space size={'middle'}>
+            <Tooltip title="当前对话正在使用的模型">
+              <Title level={4}>{currentModel}</Title>
+            </Tooltip>
+            {currentModel ? (
+              <Tooltip title="修改模型相关的配置(TODO)">
+                {' '}
+                <EditTwoTone />{' '}
+              </Tooltip>
+            ) : null}
+          </Space>
+
           <Divider />
           <Content // 聊天区------
             style={{
@@ -212,7 +281,17 @@ export default function IndexPage() {
             hidden={currentSessionId === ''}
           >
             <Space.Compact style={{ width: '100%' }}>
+              <Button
+                type="primary"
+                className="Button"
+                shape="round"
+                onClick={() => {}}
+                danger
+              >
+                <Tooltip title="清空当前会话的所有消息(TODO)">清空</Tooltip>
+              </Button>
               <TextArea
+                ref={textAreaRef}
                 placeholder="在此输入你想要咨询的内容，比如：李白是谁？有哪些经典的作品？\n 按下 Ctrl + Enter 发送"
                 className="TextArea"
                 onChange={e => {
@@ -233,7 +312,7 @@ export default function IndexPage() {
                   shape="round"
                   onClick={sendChatRequest}
                 >
-                  发送
+                  <Tooltip title="发送 Ctrl+Enter">发送</Tooltip>
                 </Button>
               ) : (
                 <Button
@@ -251,10 +330,11 @@ export default function IndexPage() {
           </Footer>
         </Layout>
       </Layout>
-      <AddSessionModal //TODO: 新建会话之后自动打开该会话
+      <AddSessionModal
         visible={addSession}
         setVisible={addSessionHandler}
-        updateList={run}
+        updateListItem={run}
+        clickItemHandler={clickItemHandler}
       />
     </Layout>
   );

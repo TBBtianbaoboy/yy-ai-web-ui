@@ -1,9 +1,6 @@
-import {
-  postGetSessionMessagesApi,
-  postDeleteSessionApi,
-} from '@/services/chat';
+import { postDeleteSessionApi } from '@/services/chat';
 import { MessageData } from '@/components/MessageList/MessageList';
-import { GetAllSessionsDatas, GetSessionMessagesDatas } from '@/types/chat';
+import { GetAllSessionsDatas } from '@/types/chat';
 import {
   MoreOutlined,
   ExclamationCircleOutlined,
@@ -17,29 +14,34 @@ import {
   Modal,
   Menu,
   Dropdown,
-  Button,
+  Typography,
   Space,
   message,
 } from 'antd';
 import { useEffect } from 'react';
 
 const { confirm } = Modal;
+const { Text } = Typography;
 
 const SiderListItem = ({
   item,
   currentSessionId,
-  setCurrentSessionId,
+  clickItemHandler,
+  setCurrentModel,
+  setCurrentSession,
   setCurrentMessages,
-  updateList,
+  updateListItem,
 }: {
   item: GetAllSessionsDatas;
   currentSessionId: undefined | string;
-  setCurrentSessionId: (v: undefined | string) => void;
+  clickItemHandler: (v: string) => void;
+  setCurrentModel: (v: string) => void;
+  setCurrentSession: (v: string) => void;
   setCurrentMessages: (v: MessageData[]) => void;
-  updateList: () => void;
+  updateListItem: () => void;
 }) => {
   useEffect(() => {
-    updateList();
+    updateListItem();
   }, []);
 
   //return
@@ -53,7 +55,7 @@ const SiderListItem = ({
                 {
                   key: '1',
                   label: (
-                    <Tooltip title="导出" placement="left">
+                    <Tooltip title="导出(TODO)" placement="left">
                       <ExportOutlined style={{ fontSize: '16px' }} />{' '}
                     </Tooltip>
                   ),
@@ -62,7 +64,7 @@ const SiderListItem = ({
                 {
                   key: '2',
                   label: (
-                    <Tooltip title="重命名" placement="left">
+                    <Tooltip title="重命名(TODO)" placement="left">
                       <EditOutlined style={{ fontSize: '16px' }} />{' '}
                     </Tooltip>
                   ),
@@ -87,7 +89,10 @@ const SiderListItem = ({
                         postDeleteSessionApi({
                           session_id: item.session_id,
                         })
-                          .then(() => updateList())
+                          .then(() => updateListItem())
+                          .then(() => setCurrentMessages(prevMessages => []))
+                          .then(() => setCurrentModel(''))
+                          .then(() => setCurrentSession(''))
                           .catch(err => {
                             message.error(err.message);
                           });
@@ -115,39 +120,12 @@ const SiderListItem = ({
         margin: '5px 0', // 列表项间增加间距
         padding: '10px', // 统一内边距
       }}
+      onClick={() => {
+        clickItemHandler(item.session_id.toString());
+      }}
     >
       <List.Item.Meta
-        title={
-          <Button
-            type="text"
-            onClick={() => {
-              setCurrentSessionId(item.session_id.toString());
-              postGetSessionMessagesApi({
-                session_id: item.session_id.toString(),
-              })
-                .then(res => {
-                  const messages = res.messages.map(
-                    (message: GetSessionMessagesDatas) => {
-                      return {
-                        sender: 'OpenAI',
-                        avatar:
-                          'https://avatars.githubusercontent.com/u/53380609?s=200&v=4',
-                        content: message.content,
-                        direction:
-                          message.role === 'assistant' ? 'left' : 'right',
-                      };
-                    },
-                  );
-                  setCurrentMessages(() => [...messages]);
-                })
-                .catch(err => {
-                  message.error(err.message);
-                });
-            }}
-          >
-            {item.session_name}
-          </Button>
-        }
+        title={<Text strong>{item.session_name}</Text>}
         style={{
           overflow: 'hidden', // 防止文本溢出
           whiteSpace: 'nowrap', // 保持单行文本

@@ -18,11 +18,13 @@ import styles from './index.less';
 const AddSessionModal = ({
   visible,
   setVisible,
-  updateList,
+  updateListItem,
+  clickItemHandler,
 }: {
   visible: undefined | number;
   setVisible: (v: undefined | number) => void;
-  updateList: () => void;
+  updateListItem: () => void;
+  clickItemHandler: (v: string) => void;
 }) => {
   const [form] = Form.useForm();
   useEffect(() => {
@@ -43,7 +45,8 @@ const AddSessionModal = ({
             ...v,
             stop: [],
           })
-            .then(() => updateList())
+            .then(res => clickItemHandler(res.session_id.toString()))
+            .then(() => updateListItem())
             .then(() => setVisible(undefined)),
         );
       }}
