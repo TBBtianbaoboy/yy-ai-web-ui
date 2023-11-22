@@ -67,7 +67,7 @@ export default function IndexPage() {
     fetchEventSource(chatDefaultApi, {
       method: 'POST',
       body: JSON.stringify({
-        model_name: 'gpt-4-1106-preview',
+        model_name: 'gpt-3.5-turbo-1106',
         question: input,
       }),
       signal: controller.signal,

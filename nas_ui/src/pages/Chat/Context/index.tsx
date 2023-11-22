@@ -84,7 +84,6 @@ export default function IndexPage() {
     fetchEventSource(chatContextApi, {
       method: 'POST',
       body: JSON.stringify({
-        model_name: 'gpt-3.5-turbo-1106',
         question: input,
         session_id: parseInt(currentSessionId as string),
       }),
