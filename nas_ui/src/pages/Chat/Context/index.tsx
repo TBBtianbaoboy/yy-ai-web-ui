@@ -252,7 +252,7 @@ export default function IndexPage() {
           </Footer>
         </Layout>
       </Layout>
-      <AddSessionModal
+      <AddSessionModal //TODO: 新建会话之后自动打开该会话
         visible={addSession}
         setVisible={addSessionHandler}
         updateList={run}
