@@ -178,16 +178,12 @@ export default function IndexPage() {
         if (msg.event === 'the end of stream' || finished) {
           return finish();
         }
-        if (msg.data === '') {
-          return;
-        }
-        msg.data = msg.data.replaceAll('[Enter]', '\n');
+        msg.data = msg.data === '' ? '\n' : msg.data;
         lastMessage += msg.data;
         updateLastMessageContent(lastMessage);
         console.log('[OpenAI] request response data: ', msg.data);
       },
       onclose() {
-        console.log('close');
         setChatFinished(true);
         finish();
       },
