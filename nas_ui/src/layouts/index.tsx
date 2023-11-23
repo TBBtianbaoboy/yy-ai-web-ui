@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { history,useLocation,Link } from 'umi';
-import logo from '../asserts/image/icon/logo.svg';
+import logo from '../asserts/image/icon/logo.png';
 import {
   LogoutOutlined,
 } from '@ant-design/icons';
@@ -12,7 +12,7 @@ import {
   SearchOutlined,
 } from '@ant-design/icons';
 import type { ProSettings } from '@ant-design/pro-components';
-import { PageContainer, ProCard, ProLayout } from '@ant-design/pro-components';
+import { PageContainer, ProLayout } from '@ant-design/pro-components';
 import { Input } from 'antd';
 import CustomRoutes from '../../config/route';
 import {bgLayoutImgList,appList} from './config';
@@ -28,33 +28,6 @@ function BasicLayout(props: {
 }) {
 
   const location = useLocation();
-  // const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  // const [openKeys, setOpenKeys] = useState<string[]>([]);
-
-    // 根据当前的location设置菜单选中和展开的状态
-  // useEffect(() => {
-  //   const pathname = location.pathname || '/';
-  //   console.log('pathname', pathname);
-  //   // 假设你的路由结构是这样的：/some-page/sub-page，此时我们以'/'为分隔符获取所有层级的路由
-  //   const paths = pathname.split('/').filter((p) => p);
-  //   console.log('paths', paths);
-  //
-  //   // 新的selectedKeys是当前页面的路由
-  //   const newSelectedKeys = [pathname];
-  //   // 新的openKeys是所有父级菜单路由
-  //   const newOpenKeys = paths.map((_, index, arr) => `/${arr.slice(0, index + 1).join('/')}`);
-  //
-  //   setSelectedKeys(newSelectedKeys);
-  //   setOpenKeys(newOpenKeys);
-  //   console.log('selectedKeys', selectedKeys);
-  //   console.log('openKeys', openKeys);
-  // }, [location]);
-
-
-  // 处理 SubMenu 展开/关闭事件
-  // const onOpenChange = (keys) => {
-  //   setOpenKeys(keys);
-  // };
 
   const logout = () => {
     localStorage.removeItem('token');

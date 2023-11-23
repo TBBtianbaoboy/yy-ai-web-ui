@@ -1,26 +1,32 @@
 import styles from './index.less';
-import user from '@/asserts/image/icon/user.svg';
-import password from '@/asserts/image/icon/password.svg';
-import { Button, Form, Input } from 'antd';
 import { history } from 'umi';
 import { useRequest } from 'ahooks';
 import { getValidCode, loginIn } from '@/services/login';
+import logo from '@/asserts/image/icon/logo.png';
 import React from 'react';
 import { useEffect } from 'react';
-import { HomeTwoTone } from '@ant-design/icons';
 import {
   LOGIN_UID,
   LOGIN_TOKEN,
   LOGIN_USERNAME,
   LOGIN_TOKEN_PRIFIX,
 } from '@/utils/constant';
+import { LockOutlined, CodeOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  LoginFormPage,
+  ProConfigProvider,
+  ProFormCheckbox,
+  ProFormText,
+} from '@ant-design/pro-components';
+import { Tabs } from 'antd';
+import { useState } from 'react';
 
-const { Item } = Form;
+type LoginType = 'phone' | 'account';
 
 export default function IndexPage() {
   // 进入登录页面时，自动发送请求获取验证码
   const { data, run } = useRequest(getValidCode);
-  const [form] = Form.useForm();
+  const [loginType, setLoginType] = useState<LoginType>('account');
 
   // 在进入登录页面时，如果已经登录过，则直接跳转到聊天页面
   useEffect(() => {
@@ -29,132 +35,137 @@ export default function IndexPage() {
     }
   }, []);
 
-  // 当按钮被点击时，发送登录请求
-  const SendLoginRequest = () => {
-    form.validateFields().then((form_values: any) => {
-      loginIn({ ...form_values, capt_id: data?.capt_id }).then(res => {
-        if (res && res.enable) {
-          localStorage.setItem(
-            LOGIN_TOKEN,
-            LOGIN_TOKEN_PRIFIX + res.authorization,
-          );
-          localStorage.setItem(LOGIN_UID, '' + res.uid);
-          localStorage.setItem(LOGIN_USERNAME, '' + res.username);
-          history.push('/chat');
-        }
-      });
-    });
-  };
-
   return (
-    <div className={styles.main}>
-      <div className={styles.topRightImage}>
-        <Button
-          className={styles.github}
-          icon={<HomeTwoTone />}
-          shape='circle'
-          size='large'
-          title='personal github'
-          onClick={() => {
-            window.open('https://github.com/TBBtianbaoboy', '_blank');
+    <ProConfigProvider dark>
+      <div
+        style={{
+          backgroundColor: 'white',
+          height: '100vh',
+        }}
+      >
+        <LoginFormPage
+          logo={logo}
+          backgroundVideoUrl="https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr"
+          title="NAS"
+          containerStyle={{
+            backgroundColor: 'white',
+            backdropFilter: 'blur(4px)',
           }}
-        />
-      </div>
-
-      <div className={styles.main_bgc}>
-        <div className={styles.login_container}>
-          <div className={styles.empty}></div>
-          <div>
-            <Form form={form} style={{ marginTop: 20 }}>
-              <Item
+          subTitle="AI 在线服务平台，致力于便捷高效地与AI进行交互"
+          onFinish={async values => {
+            loginIn({ ...values, capt_id: data?.capt_id }).then(res => {
+              if (res && res.enable) {
+                localStorage.setItem(
+                  LOGIN_TOKEN,
+                  LOGIN_TOKEN_PRIFIX + res.authorization,
+                );
+                localStorage.setItem(LOGIN_UID, '' + res.uid);
+                localStorage.setItem(LOGIN_USERNAME, '' + res.username);
+                history.push('/chat');
+              }
+            });
+          }}
+        >
+          <Tabs
+            centered
+            activeKey={loginType}
+            onChange={activeKey => setLoginType(activeKey as LoginType)}
+          >
+            <Tabs.TabPane key={'account'} tab={'账号密码登录'} />
+          </Tabs>
+          {loginType === 'account' && (
+            <>
+              <ProFormText
                 name="username"
-                rules={[{ required: true, message: '用户名是必须的' }]}
-              >
-                <MyInput
-                  label={<img className={styles.mr15} src={user}></img>}
-                />
-              </Item>
-              <Item
+                fieldProps={{
+                  size: 'large',
+                  prefix: (
+                    <UserOutlined
+                      style={{
+                        color: 'rgba(0, 0, 0, 0.2)',
+                      }}
+                    />
+                  ),
+                }}
+                placeholder={'用户名'}
+                rules={[
+                  {
+                    required: true,
+                    message: '请输入用户名!',
+                  },
+                ]}
+              />
+              <ProFormText.Password
                 name="password"
-                rules={[{ required: true, message: '密码是必须的' }]}
-              >
-                <MyInput
-                  type="password"
-                  label={<img className={styles.mr15} src={password}></img>}
-                />
-              </Item>
-              <Item
-                name="vcode"
-                rules={[{ required: true, message: '请填写验证码' }]}
-              >
-                <ValidCode data={data?.image} run={run} />
-              </Item>
-              <Item>
-                <Button
-                  size="large"
-                  type="primary"
-                  className={styles.button}
-                  style={{ marginLeft: 72 }}
-                  onClick={SendLoginRequest}
-                >
-                  登录
-                </Button>
-              </Item>
-            </Form>
+                fieldProps={{
+                  size: 'large',
+                  prefix: (
+                    <LockOutlined
+                      style={{
+                        color: 'rgba(0, 0, 0, 0.2)',
+                      }}
+                    />
+                  ),
+                }}
+                placeholder={'密码'}
+                rules={[
+                  {
+                    required: true,
+                    message: '请输入密码！',
+                  },
+                ]}
+              />
+              <ValidCode run={run} data={data?.image} />
+            </>
+          )}
+          <div
+            style={{
+              marginBlockEnd: 24,
+            }}
+          >
+            <ProFormCheckbox
+              noStyle
+              name="autoLogin"
+              style={{ color: 'white' }}
+            >
+              自动登录
+            </ProFormCheckbox>
+            <a
+              style={{
+                float: 'right',
+              }}
+            >
+              忘记密码
+            </a>
           </div>
-        </div>
+        </LoginFormPage>
       </div>
-    </div>
+    </ProConfigProvider>
   );
 }
 
-const MyInput = ({
-  onChange,
-  value,
-  label,
-  type,
-}: {
-  onChange?: React.ChangeEventHandler<HTMLInputElement>;
-  value?: string;
-  label: React.ReactNode;
-  type?: 'password';
-}) => (
-  <div className={styles.input}>
-    {label}
-    {type === 'password' ? (
-      <Input.Password
-        placeholder="请输入密码"
-        onChange={onChange}
-        value={value}
-      ></Input.Password>
-    ) : (
-      <Input
-        placeholder="请输入用户名"
-        onChange={onChange}
-        value={value}
-      ></Input>
-    )}
-  </div>
-);
-
-const ValidCode = ({
-  onChange,
-  value,
-  run,
-  data,
-}: {
-  onChange?: React.ChangeEventHandler<HTMLInputElement>;
-  value?: string;
-  run: () => void;
-  data?: string;
-}) => {
+const ValidCode = ({ run, data }: { run: () => void; data?: string }) => {
   return (
     <div className={styles.input}>
-      <Input
-        placeholder="请输入验证码"
-        style={{ marginLeft: 72, width: 195 }}
-        onChange={onChange}
-        value={value}
+      <ProFormText
+        name="vcode"
+        fieldProps={{
+          size: 'large',
+          prefix: (
+            <CodeOutlined
+              style={{
+                color: 'rgba(0, 0, 0, 0.2)',
+              }}
+            />
+          ),
+        }}
+        placeholder={'验证码'}
+        rules={[
+          {
+            required: true,
+            message: '请输入验证码!',
+          },
+        ]}
       />
       <img
         className={styles.code}

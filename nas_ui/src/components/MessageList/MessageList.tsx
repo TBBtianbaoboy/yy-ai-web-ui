@@ -1,5 +1,5 @@
 import { ViewMarkdown } from '@/components/MarkDown/CodeBlock';
-import logo from '@/asserts/image/icon/logo.svg';
+import logo from '@/asserts/image/icon/logo.png';
 import Title from 'antd/lib/typography/Title';
 import { List, Avatar } from 'antd';
 import { useRef, useEffect } from 'react';
