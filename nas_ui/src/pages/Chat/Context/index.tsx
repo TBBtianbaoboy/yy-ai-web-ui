@@ -3,8 +3,9 @@ import {
   chatContextApi,
   postGetAllSessionsApi,
   postGetSessionMessagesApi,
+  postDeleteSessionMessagesApi,
 } from '@/services/chat';
-import { GetSessionMessagesDatas } from '@/types/chat';
+import { GetSessionMessagesDatas, SessionInfo } from '@/types/chat';
 import { LOGIN_TOKEN } from '@/utils/constant';
 import { fetchEventSource } from '@fortaine/fetch-event-source';
 import { MessageData, MessageList } from '@/components/MessageList/MessageList';
@@ -18,9 +19,14 @@ import {
   List,
   Divider,
   Space,
+  Modal,
   message,
 } from 'antd';
-import { EditTwoTone, CommentOutlined } from '@ant-design/icons';
+import {
+  EditTwoTone,
+  CommentOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons';
 import 'antd/dist/antd.css'; // 引入antd样式文件
 import AddSessionModal from './AddSessionModal';
 import SiderListItem from './SiderListItem';
@@ -29,6 +35,7 @@ import { useRequest } from 'ahooks'; // useRequest can not be from umi
 const { Content, Footer, Sider } = Layout;
 const { TextArea } = Input;
 const { Title } = Typography;
+const { confirm } = Modal;
 
 export default function IndexPage() {
   const { data, run } = useRequest(() => postGetAllSessionsApi(), {
@@ -40,10 +47,13 @@ export default function IndexPage() {
   );
   const [inputValue, setInputValue] = useState('');
   const [chatFinished, setChatFinished] = useState(true);
-  const [addSession, addSessionHandler] = useState<number | undefined>(
+  const [openAddSession, setOpenAddSession] = useState<boolean>(false);
+  const [currentModel, setCurrentModel] = useState<SessionInfo | undefined>(
     undefined,
   );
-  const [currentModel, setCurrentModel] = useState<string>('');
+  const [sessionUpdate, setSessionUpdate] = useState<SessionInfo | undefined>(
+    undefined,
+  );
 
   const textAreaRef = useRef(null);
 
@@ -76,7 +86,13 @@ export default function IndexPage() {
       session_id: session_id,
     })
       .then(res => {
-        setCurrentModel(res.model);
+        setCurrentModel({
+          session_id: parseInt(session_id),
+          session_name: res.session_name,
+          model: res.model,
+          temperature: res.temperature,
+          max_tokens: res.max_tokens,
+        });
         const messages = res.messages.map(
           (message: GetSessionMessagesDatas) => {
             return {
@@ -95,7 +111,7 @@ export default function IndexPage() {
       });
   };
 
-  const updateLastMessageContent = (newContent: string) => {
+  const updateLastMessageContent = (newContent: string): void => {
     setCurrentMessages(prevMessages => {
       if (prevMessages.length === 0) {
         // 若currentMessages为空，则没有元素可更新
@@ -181,7 +197,6 @@ export default function IndexPage() {
         msg.data = msg.data === '' ? '\n' : msg.data;
         lastMessage += msg.data;
         updateLastMessageContent(lastMessage);
-        console.log('[OpenAI] request response data: ', msg.data);
       },
       onclose() {
         setChatFinished(true);
@@ -220,7 +235,10 @@ export default function IndexPage() {
               size="middle"
               style={{ marginRight: '10px' }}
               icon={<CommentOutlined />}
-              onClick={() => addSessionHandler(1)}
+              onClick={() => {
+                setOpenAddSession(true);
+                setSessionUpdate(undefined);
+              }}
             >
               新建对话
             </Button>
@@ -250,12 +268,17 @@ export default function IndexPage() {
         <Layout style={{ paddingLeft: '12px' }}>
           <Space size={'middle'}>
             <Tooltip title="当前对话正在使用的模型">
-              <Title level={4}>{currentModel}</Title>
+              <Title level={4}>{currentModel?.model}</Title>
             </Tooltip>
             {currentModel ? (
-              <Tooltip title="修改模型相关的配置(TODO)">
+              <Tooltip title="修改模型相关的配置">
                 {' '}
-                <EditTwoTone />{' '}
+                <EditTwoTone
+                  onClick={() => {
+                    setOpenAddSession(true);
+                    setSessionUpdate(currentModel);
+                  }}
+                />{' '}
               </Tooltip>
             ) : null}
           </Space>
@@ -281,10 +304,27 @@ export default function IndexPage() {
                 type="primary"
                 className="Button"
                 shape="round"
-                onClick={() => {}}
+                onClick={() => {
+                  confirm({
+                    title: '确定要删除吗?',
+                    icon: <ExclamationCircleOutlined />,
+                    content: '删除后将无法恢复，请谨慎操作。',
+                    onOk() {
+                      postDeleteSessionMessagesApi({
+                        session_id: parseInt(currentSessionId as string),
+                      })
+                        .catch(err => {
+                          message.error(err.message);
+                          return;
+                        })
+                        .then(() => setCurrentMessages(prevMessages => []));
+                      message.success('删除成功');
+                    },
+                  });
+                }}
                 danger
               >
-                <Tooltip title="清空当前会话的所有消息(TODO)">清空</Tooltip>
+                <Tooltip title="清空当前会话的所有消息">清空</Tooltip>
               </Button>
               <TextArea
                 ref={textAreaRef}
@@ -327,10 +367,11 @@ export default function IndexPage() {
         </Layout>
       </Layout>
       <AddSessionModal
-        visible={addSession}
-        setVisible={addSessionHandler}
+        visible={openAddSession}
+        setVisible={setOpenAddSession}
         updateListItem={run}
         clickItemHandler={clickItemHandler}
+        sessionInfo={sessionUpdate}
       />
     </Layout>
   );

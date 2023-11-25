@@ -15,7 +15,7 @@ export default function IndexPage() {
   const [inputValue, setInputValue] = useState('');
   const [chatFinished, setChatFinished] = useState(true);
 
-  const updateLastMessageContent = (newContent: string) => {
+  const updateLastMessageContent = (newContent: string):void => {
     setCurrentMessages(prevMessages => {
       if (prevMessages.length === 0) {
         // 若currentMessages为空，则没有元素可更新
@@ -98,12 +98,11 @@ export default function IndexPage() {
         if (msg.event === 'the end of stream' || finished) {
           return finish();
         }
-        lastMessage += msg.data || '\n';
+        msg.data = msg.data === '' ? '\n' : msg.data;
+        lastMessage += msg.data;
         updateLastMessageContent(lastMessage);
-        console.log('[OpenAI] request response data: ', msg.data);
       },
       onclose() {
-        console.log('close');
         setChatFinished(true);
         finish();
       },
@@ -129,7 +128,7 @@ export default function IndexPage() {
           style={{ textAlign: 'left', padding: '10px 0' }}
         >
           <h3>
-            <span>第八区</span>
+            <span>免费对话区</span>
           </h3>
           <Divider />
         </div>

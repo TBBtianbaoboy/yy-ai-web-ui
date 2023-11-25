@@ -19,6 +19,9 @@ export interface GetSessionMessagesDatas {
 export interface GetSessionMessagesResp {
   uid: number;
   model: string;
+  session_name: string;
+  max_tokens: number;
+  temperature: number;
   messages: GetSessionMessagesDatas[];
 }
 
@@ -41,6 +44,29 @@ export interface AddSessionReq {
 
 //-------------------------------------
 
+export interface UpdateSessionReq {
+  session_id: number;
+  session_name: string;
+  model: string;
+  max_tokens: number;
+  temperature: number;
+  stop: string[];
+}
+
+//-------------------------------------
+
 export interface AddessionResp {
   session_id: number;
+}
+
+export interface UpdateSessionResp {
+  session_id: number;
+}
+
+export interface SessionInfo {
+  session_id: number;
+  session_name: string;
+  model: string;
+  temperature: number;
+  max_tokens: number;
 }

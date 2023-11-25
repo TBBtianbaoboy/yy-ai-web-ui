@@ -1,4 +1,4 @@
-import { postAddSessionApi } from '@/services/chat';
+import { postAddSessionApi,postUpdateSessionApi } from '@/services/chat';
 import { model_list } from '@/utils/constant';
 import { DecimalStep } from './DecimalStep';
 import {
@@ -14,42 +14,78 @@ import {
 import TextArea from 'antd/lib/input/TextArea';
 import { useEffect } from 'react';
 import styles from './index.less';
+import { SessionInfo } from '@/types/chat';
 
 const AddSessionModal = ({
   visible,
   setVisible,
   updateListItem,
   clickItemHandler,
+  sessionInfo,
 }: {
-  visible: undefined | number;
-  setVisible: (v: undefined | number) => void;
+  visible: boolean;
+  setVisible: (v: boolean) => void;
   updateListItem: () => void;
   clickItemHandler: (v: string) => void;
+  sessionInfo?: SessionInfo;
 }) => {
   const [form] = Form.useForm();
   useEffect(() => {
     form.resetFields();
   }, [visible]);
-  //return
-  return (
-    <Modal
-      destroyOnClose
-      visible={!!visible}
-      okText="确定"
-      cancelText="取消"
-      title="新建对话"
-      onCancel={() => setVisible(undefined)}
-      onOk={() => {
-        form.validateFields().then(v =>
-          postAddSessionApi({
+
+  let initValue = {
+    session_name: '',
+    model: model_list[0].value,
+    max_tokens: 1024,
+    temperature: 1.0,
+    system: 'You are a helpful assistant.',
+  };
+  let isUpdate = false;
+
+  if (typeof sessionInfo !== 'undefined') {
+    initValue = {
+      session_name: sessionInfo.session_name,
+      model: sessionInfo.model,
+      max_tokens: sessionInfo.max_tokens,
+      temperature: sessionInfo.temperature,
+      system: '',
+    };
+    isUpdate = true;
+  }
+
+  // 点击确定按钮触发
+  const handleOk = () => {
+    form.validateFields().then(v => {
+      (isUpdate
+        ? postUpdateSessionApi({
+            ...v,
+            stop: [],
+            session_id: sessionInfo?.session_id,
+          })
+        : postAddSessionApi({
             ...v,
             stop: [],
           })
-            .then(res => clickItemHandler(res.session_id.toString()))
-            .then(() => updateListItem())
-            .then(() => setVisible(undefined)),
-        );
-      }}
+      )
+        .then(res => clickItemHandler(res.session_id.toString()))
+        .then(() => updateListItem())
+        .then(() => setVisible(false));
+    });
+  };
+
+  const handleCancel = () => {
+    setVisible(false);
+  };
+  return (
+    <Modal
+      destroyOnClose
+      open={visible}
+      okText="确定"
+      cancelText="取消"
+      title="新建对话"
+      onCancel={handleCancel}
+      onOk={handleOk}
     >
       <Form form={form}>
         <Row>
@@ -60,6 +96,7 @@ const AddSessionModal = ({
             rules={[{ required: true, message: '会话名称不能为空' }]}
             name="session_name"
             style={{ width: '100%' }}
+            initialValue={initValue.session_name}
           >
             <Input
               placeholder="请给你的会话起个名称，方便选择"
@@ -81,7 +118,7 @@ const AddSessionModal = ({
             rules={[{ required: true, message: '请选择模型' }]}
             name="model"
             style={{ width: '46%', marginRight: '3%' }}
-            initialValue={model_list[0].value}
+            initialValue={initValue.model}
           >
             <Select options={model_list} placeholder="请选择模型"></Select>
           </Form.Item>
@@ -89,7 +126,7 @@ const AddSessionModal = ({
             rules={[{ required: true, message: '请输入最大长度' }]}
             name="max_tokens"
             style={{ width: '46%', marginRight: '3%' }}
-            initialValue={1024}
+            initialValue={initValue.max_tokens}
           >
             <InputNumber />
           </Form.Item>
@@ -110,7 +147,7 @@ const AddSessionModal = ({
             ]}
             name="temperature"
             style={{ width: '100%' }}
-            initialValue={1.0}
+            initialValue={initValue.temperature}
           >
             <DecimalStep />
           </Form.Item>
@@ -125,9 +162,13 @@ const AddSessionModal = ({
             rules={[{ required: false }]}
             name="system"
             style={{ width: '100%' }}
-            initialValue="You are a helpful assistant."
+            initialValue={initValue.system}
           >
-            <TextArea placeholder="仅限1000字数以内" maxLength={1000} />
+            <TextArea
+              disabled={isUpdate}
+              placeholder="仅限1000字数以内"
+              maxLength={1000}
+            />
           </Form.Item>
         </div>
       </Form>

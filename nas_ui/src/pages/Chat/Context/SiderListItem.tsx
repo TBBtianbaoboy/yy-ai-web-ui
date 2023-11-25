@@ -1,6 +1,6 @@
 import { postDeleteSessionApi } from '@/services/chat';
 import { MessageData } from '@/components/MessageList/MessageList';
-import { GetAllSessionsDatas } from '@/types/chat';
+import { GetAllSessionsDatas, SessionInfo } from '@/types/chat';
 import {
   MoreOutlined,
   ExclamationCircleOutlined,
@@ -35,7 +35,7 @@ const SiderListItem = ({
   item: GetAllSessionsDatas;
   currentSessionId: undefined | string;
   clickItemHandler: (v: string) => void;
-  setCurrentModel: (v: string) => void;
+  setCurrentModel: (v: SessionInfo | undefined) => void;
   setCurrentSession: (v: string) => void;
   setCurrentMessages: (v: MessageData[]) => void;
   updateListItem: () => void;
@@ -89,13 +89,14 @@ const SiderListItem = ({
                         postDeleteSessionApi({
                           session_id: item.session_id,
                         })
-                          .then(() => updateListItem())
-                          .then(() => setCurrentMessages(prevMessages => []))
-                          .then(() => setCurrentModel(''))
-                          .then(() => setCurrentSession(''))
                           .catch(err => {
                             message.error(err.message);
-                          });
+                            return;
+                          })
+                          .then(() => updateListItem())
+                          .then(() => setCurrentMessages(prevMessages => []))
+                          .then(() => setCurrentModel(undefined))
+                          .then(() => setCurrentSession(''));
                         message.success('删除成功');
                       },
                     });
