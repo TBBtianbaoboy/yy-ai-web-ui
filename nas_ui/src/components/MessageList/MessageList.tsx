@@ -45,7 +45,7 @@ export const MessageList = (props: messageListProps) => {
     >
       <div
         id="scrollableDiv"
-        style={{ overflow: 'auto', height: '75vh' }}
+        style={{ overflow: 'auto', height: '70vh' }}
         ref={scrollParentRef}
       >
         <List

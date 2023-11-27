@@ -122,7 +122,7 @@ export default function IndexPage() {
   };
 
   return (
-    <Layout style={{ height: '100vh' }}>
+    <Layout style={{ height: '90vh' }}>
       <Layout style={{ paddingLeft: '24px' }}>
         <div // 标题区------
           style={{ textAlign: 'left', padding: '10px 0' }}

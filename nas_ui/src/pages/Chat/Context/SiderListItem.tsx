@@ -19,6 +19,7 @@ import {
   message,
 } from 'antd';
 import { useEffect } from 'react';
+import "./index.less"
 
 const { confirm } = Modal;
 const { Text } = Typography;
@@ -117,10 +118,11 @@ const SiderListItem = ({
       style={{
         background:
           currentSessionId === item.session_id.toString() ? '#e6f7ff' : '',
-        borderRadius: '4px', // 增加轮廓圆角
-        margin: '5px 0', // 列表项间增加间距
+        borderRadius: '5px', // 增加轮廓圆角
+        margin: '2px 0', // 列表项间增加间距
         padding: '10px', // 统一内边距
       }}
+      className="list-item"
       onClick={() => {
         clickItemHandler(item.session_id.toString());
       }}

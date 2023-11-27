@@ -18,13 +18,7 @@ import CustomRoutes from '../../config/route';
 import {bgLayoutImgList,appList} from './config';
 
 function BasicLayout(props: {
-  children:
-    | boolean
-    | React.ReactChild
-    | React.ReactFragment
-    | React.ReactPortal
-    | null
-    | undefined;
+  children: React.ReactNode;
 }) {
 
   const location = useLocation();
@@ -36,16 +30,14 @@ function BasicLayout(props: {
   };
 
   const settings: ProSettings | undefined = {
-    fixSiderbar: true,
+    fixedHeader: true,
     layout: 'top', // 顶部导航
-    splitMenus: true,
   };
 
   const username = localStorage.getItem('username');
   const pathname = location.pathname || '/';
   return pathname !== '/404' && pathname !== '/login' ? (
     <div
-      id="test-pro-layout"
       style={{
         height: '100vh',
       }}
@@ -113,20 +105,6 @@ function BasicLayout(props: {
             }} />,
           ];
         }}
-        menuFooterRender={(props) => {
-          if (props?.collapsed) return undefined;
-          return (
-            <div
-              style={{
-                textAlign: 'center',
-                paddingBlockStart: 12,
-              }}
-            >
-              <div>© 2021 Made with love</div>
-              <div>by Ant Design</div>
-            </div>
-          );
-        }}
         onMenuHeaderClick={()=>{ history.push('/') }} // 点击logo跳转到首页
 
       menuItemRender={ (menuItemProps, defaultDom) => {
@@ -135,13 +113,6 @@ function BasicLayout(props: {
     }
     return <Link to={menuItemProps.path}>{defaultDom}</Link>;
   }} // 自定义菜单项渲染
-      subMenuItemRender={ (menuItemProps, defaultDom) => {
-    if (menuItemProps.isUrl || menuItemProps.children || !menuItemProps.path) {
-      return defaultDom;
-    }
-    return <Link to={menuItemProps.path}>{defaultDom}</Link>;
-  }} // 自定义菜单项渲染
-
         {...settings}
       >
       <PageContainer breadcrumbRender={false} title={false}>

@@ -217,23 +217,23 @@ export default function IndexPage() {
   };
 
   return (
-    <Layout style={{ height: '100vh' }}>
-      <Layout>
+    <Layout style={{ height: '90vh' }}>
         <Sider // 侧边栏会话列表
           width={300}
           style={{
             background: '#ffffff',
             textAlign: 'left',
+            height: '90vh',
           }}
         >
-          <div // 操作区------
-            style={{ padding: '10px 0', textAlign: 'center' }}
+          <div // 按钮区
+            style={{ padding: '10px 0', textAlign: 'center', height: '60px' }}
           >
             <Button
               type="primary"
               shape="round"
               size="middle"
-              style={{ marginRight: '10px' }}
+              className="scifi-button"
               icon={<CommentOutlined />}
               onClick={() => {
                 setOpenAddSession(true);
@@ -244,11 +244,12 @@ export default function IndexPage() {
             </Button>
           </div>
 
-          <List
+          <List // 会话列表
             bordered
+            className="scrollbar-style dynamic-border"
             style={{
-              overflowY: 'scroll', // 优化滚动
-              height: '100vh', // 减去按钮和边距所占空间
+              overflowY: 'auto', // 滚动条
+              height: 'calc(90vh - 60px)',
             }}
             itemLayout="horizontal"
             dataSource={data?.datas || []}
@@ -265,7 +266,7 @@ export default function IndexPage() {
             )}
           />
         </Sider>
-        <Layout style={{ paddingLeft: '12px' }}>
+        <Layout style={{ paddingLeft: '12px',height:'90vh' }}>
           <Space size={'middle'}>
             <Tooltip title="当前对话正在使用的模型">
               <Title level={4}>{currentModel?.model}</Title>
@@ -288,7 +289,7 @@ export default function IndexPage() {
             style={{
               padding: '0 24px',
               minHeight: 280,
-              border: '2px solid #eee000',
+              border: '2px solid #c6f6ff',
               borderRadius: '10px',
               height: '80vh',
             }}
@@ -365,7 +366,6 @@ export default function IndexPage() {
             </Space.Compact>
           </Footer>
         </Layout>
-      </Layout>
       <AddSessionModal
         visible={openAddSession}
         setVisible={setOpenAddSession}

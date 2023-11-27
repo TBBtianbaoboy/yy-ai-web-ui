@@ -56,3 +56,74 @@
     }
   }
 }
+
+//新建对话按钮
+.scifi-button {
+  background-color: #1e90ff; /* 霓虹蓝背景色 */
+  color: white;             /* 文字颜色 */
+  border: none;             /* 去除边框 */
+  box-shadow: 0 4px 8px 0 rgba(30, 144, 255, 0.5); /* 蓝色阴影，具有霓虹发光效果 */
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.5);   /* 文字阴影，发光效果 */
+  transition: all 0.3s;        /* 平滑过渡效果 */
+  /* 其他你想添加的效果 */
+}
+
+.scifi-button:hover {
+  transform: translateY(-2px); /* 小幅上移，增加互动效果 */
+  box-shadow: 0 6px 12px 0 rgba(30, 144, 255, 0.6); /* 加大阴影，增加发光效果 */
+}
+
+.scifi-button:active {
+  transform: translateY(1px); /* 下压效果 */
+  box-shadow: 0 3px 6px 0 rgba(30, 144, 255, 0.5); /* 调整阴影 */
+}
+
+// 会话列表
+.scrollbar-style {
+  scrollbar-width: thin;
+  scrollbar-color: #5e6a60  #ffffff;
+  border-radius: 10px;
+}
+
+/* Chrome, Edge, and Safari */
+.scrollbar-style::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-style::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+.scrollbar-style::-webkit-scrollbar-thumb {
+  background-color: #5e6a60;
+  border-radius: 20px;
+}
+
+/* 动态边框 */
+@keyframes border-flicker {
+  0% {
+    border-color: #4f5b93;
+  }
+  50% {
+    border-color: #acb3e3;
+  }
+  100% {
+    border-color: #4f5b93;
+  }
+}
+
+.dynamic-border {
+  animation: border-flicker 2s infinite;
+  border-width: 5px;
+}
+
+.list-item {
+  padding: 10px;
+  border: 1px solid #ddd; /* 边框，可根据需要修改 */
+  margin-bottom: 5px; /* 项目间距，可根据需要修改 */
+  transition: background-color 0.3s; /* 平滑过渡效果 */
+}
+
+.list-item:hover {
+  background-color: #f0f0f0; /* 鼠标悬停时的背景色 */
+}
