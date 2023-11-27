@@ -4,6 +4,7 @@ import {
   postGetAllSessionsApi,
   postGetSessionMessagesApi,
   postDeleteSessionMessagesApi,
+  postDeleteAllSessionsApi,
 } from '@/services/chat';
 import { GetSessionMessagesDatas, SessionInfo } from '@/types/chat';
 import { LOGIN_TOKEN } from '@/utils/constant';
@@ -19,6 +20,7 @@ import {
   List,
   Divider,
   Space,
+  Popconfirm,
   Modal,
   message,
 } from 'antd';
@@ -92,6 +94,7 @@ export default function IndexPage() {
           model: res.model,
           temperature: res.temperature,
           max_tokens: res.max_tokens,
+          system: res.system,
         });
         const messages = res.messages.map(
           (message: GetSessionMessagesDatas) => {
@@ -218,17 +221,18 @@ export default function IndexPage() {
 
   return (
     <Layout style={{ height: '90vh' }}>
-        <Sider // 侧边栏会话列表
-          width={300}
-          style={{
-            background: '#ffffff',
-            textAlign: 'left',
-            height: '90vh',
-          }}
+      <Sider // 侧边栏会话列表
+        width={300}
+        style={{
+          background: '#ffffff',
+          textAlign: 'left',
+          height: '90vh',
+        }}
+      >
+        <div // 按钮区
+          style={{ padding: '10px 0', textAlign: 'center', height: '60px' }}
         >
-          <div // 按钮区
-            style={{ padding: '10px 0', textAlign: 'center', height: '60px' }}
-          >
+          <Space>
             <Button
               type="primary"
               shape="round"
@@ -242,130 +246,163 @@ export default function IndexPage() {
             >
               新建对话
             </Button>
-          </div>
+            <Popconfirm
+              title="删除后将无法恢复，请谨慎操作。"
+              onConfirm={() => {
+                postDeleteAllSessionsApi()
+                  .catch(err => {
+                    message.error(err.message);
+                    return;
+                  })
+                  .then(() => run())
+                  .then(() => setCurrentMessages(prevMessages => []))
+                  .then(() => setCurrentModel(undefined))
+                  .then(() => setCurrentSessionId(''));
 
-          <List // 会话列表
-            bordered
-            className="scrollbar-style dynamic-border"
-            style={{
-              overflowY: 'auto', // 滚动条
-              height: 'calc(90vh - 60px)',
-            }}
-            itemLayout="horizontal"
-            dataSource={data?.datas || []}
-            renderItem={item => (
-              <SiderListItem
-                item={item}
-                currentSessionId={currentSessionId}
-                clickItemHandler={clickItemHandler}
-                updateListItem={run}
-                setCurrentMessages={setCurrentMessages}
-                setCurrentModel={setCurrentModel}
-                setCurrentSession={setCurrentSessionId}
-              />
-            )}
-          />
-        </Sider>
-        <Layout style={{ paddingLeft: '12px',height:'90vh' }}>
-          <Space size={'middle'}>
-            <Tooltip title="当前对话正在使用的模型">
-              <Title level={4}>{currentModel?.model}</Title>
-            </Tooltip>
-            {currentModel ? (
-              <Tooltip title="修改模型相关的配置">
-                {' '}
-                <EditTwoTone
-                  onClick={() => {
-                    setOpenAddSession(true);
-                    setSessionUpdate(currentModel);
-                  }}
-                />{' '}
-              </Tooltip>
-            ) : null}
+                message.success('删除成功');
+              }}
+              showCancel={false}
+              okText="确定"
+            >
+              <Button
+                type="primary"
+                shape="round"
+                size="middle"
+                className="scifi-button"
+                icon={<CommentOutlined />}
+                onClick={e => {
+                  e.preventDefault();
+                }}
+                danger
+              >
+                删除所有会话
+              </Button>
+            </Popconfirm>
           </Space>
+        </div>
 
-          <Divider />
-          <Content // 聊天区------
-            style={{
-              padding: '0 24px',
-              minHeight: 280,
-              border: '2px solid #c6f6ff',
-              borderRadius: '10px',
-              height: '80vh',
-            }}
-          >
-            <MessageList currentMessages={currentMessages} />
-          </Content>
-          <Footer // 输入区------
-            style={{ textAlign: 'left', padding: '10px 20px' }}
-            hidden={currentSessionId === ''}
-          >
-            <Space.Compact style={{ width: '100%' }}>
+        <List // 会话列表
+          bordered
+          className="scrollbar-style dynamic-border"
+          style={{
+            overflowY: 'auto', // 滚动条
+            height: 'calc(90vh - 60px)',
+          }}
+          itemLayout="horizontal"
+          dataSource={data?.datas || []}
+          renderItem={item => (
+            <SiderListItem
+              item={item}
+              currentSessionId={currentSessionId}
+              clickItemHandler={clickItemHandler}
+              updateListItem={run}
+              setCurrentMessages={setCurrentMessages}
+              setCurrentModel={setCurrentModel}
+              setCurrentSession={setCurrentSessionId}
+            />
+          )}
+        />
+      </Sider>
+      <Layout style={{ paddingLeft: '12px', height: '90vh' }}>
+        <Space size={'middle'}>
+          <Tooltip title="当前对话正在使用的模型">
+            <Title level={4}>{currentModel?.model}</Title>
+          </Tooltip>
+          {currentModel ? (
+            <Tooltip title="修改模型相关的配置">
+              {' '}
+              <EditTwoTone
+                onClick={() => {
+                  setOpenAddSession(true);
+                  setSessionUpdate(currentModel);
+                }}
+              />{' '}
+            </Tooltip>
+          ) : null}
+        </Space>
+
+        <Divider />
+        <Content // 聊天区------
+          style={{
+            padding: '0 24px',
+            minHeight: 280,
+            border: '2px solid #c6f6ff',
+            borderRadius: '10px',
+            height: '80vh',
+          }}
+        >
+          <MessageList currentMessages={currentMessages} />
+        </Content>
+        <Footer // 输入区------
+          style={{ textAlign: 'left', padding: '10px 20px' }}
+          hidden={currentSessionId === ''}
+        >
+          <Space.Compact style={{ width: '100%' }}>
+            <Button
+              type="primary"
+              className="Button"
+              shape="round"
+              onClick={() => {
+                confirm({
+                  title: '确定要删除吗?',
+                  icon: <ExclamationCircleOutlined />,
+                  content: '删除后将无法恢复，请谨慎操作。',
+                  onOk() {
+                    postDeleteSessionMessagesApi({
+                      session_id: parseInt(currentSessionId as string),
+                    })
+                      .catch(err => {
+                        message.error(err.message);
+                        return;
+                      })
+                      .then(() => setCurrentMessages(prevMessages => []));
+                    message.success('删除成功');
+                  },
+                });
+              }}
+              danger
+            >
+              <Tooltip title="清空当前会话的所有消息">清空</Tooltip>
+            </Button>
+            <TextArea
+              ref={textAreaRef}
+              placeholder="在此输入你想要咨询的内容，比如：李白是谁？有哪些经典的作品？\n 按下 Ctrl + Enter 发送"
+              className="TextArea"
+              onChange={e => {
+                setInputValue(e.target.value); // 每次输入发生变化时更新
+              }}
+              onKeyDown={e => {
+                // 按下 Ctrl + Enter 发送
+                if (e.key === 'Enter' && e.ctrlKey) {
+                  sendChatRequest();
+                }
+              }}
+              value={inputValue}
+            />
+            {chatFinished ? (
               <Button
                 type="primary"
                 className="Button"
                 shape="round"
-                onClick={() => {
-                  confirm({
-                    title: '确定要删除吗?',
-                    icon: <ExclamationCircleOutlined />,
-                    content: '删除后将无法恢复，请谨慎操作。',
-                    onOk() {
-                      postDeleteSessionMessagesApi({
-                        session_id: parseInt(currentSessionId as string),
-                      })
-                        .catch(err => {
-                          message.error(err.message);
-                          return;
-                        })
-                        .then(() => setCurrentMessages(prevMessages => []));
-                      message.success('删除成功');
-                    },
-                  });
-                }}
-                danger
+                onClick={sendChatRequest}
               >
-                <Tooltip title="清空当前会话的所有消息">清空</Tooltip>
+                <Tooltip title="发送 Ctrl+Enter">发送</Tooltip>
               </Button>
-              <TextArea
-                ref={textAreaRef}
-                placeholder="在此输入你想要咨询的内容，比如：李白是谁？有哪些经典的作品？\n 按下 Ctrl + Enter 发送"
-                className="TextArea"
-                onChange={e => {
-                  setInputValue(e.target.value); // 每次输入发生变化时更新
+            ) : (
+              <Button
+                type="ghost"
+                className="Button"
+                shape="round"
+                onClick={() => {
+                  stopChatRequest();
                 }}
-                onKeyDown={e => {
-                  // 按下 Ctrl + Enter 发送
-                  if (e.key === 'Enter' && e.ctrlKey) {
-                    sendChatRequest();
-                  }
-                }}
-                value={inputValue}
-              />
-              {chatFinished ? (
-                <Button
-                  type="primary"
-                  className="Button"
-                  shape="round"
-                  onClick={sendChatRequest}
-                >
-                  <Tooltip title="发送 Ctrl+Enter">发送</Tooltip>
-                </Button>
-              ) : (
-                <Button
-                  type="ghost"
-                  className="Button"
-                  shape="round"
-                  onClick={() => {
-                    stopChatRequest();
-                  }}
-                >
-                  停止
-                </Button>
-              )}
-            </Space.Compact>
-          </Footer>
-        </Layout>
+              >
+                停止
+              </Button>
+            )}
+          </Space.Compact>
+        </Footer>
+      </Layout>
       <AddSessionModal
         visible={openAddSession}
         setVisible={setOpenAddSession}

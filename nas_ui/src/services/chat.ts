@@ -6,7 +6,8 @@ const getAllSessionsApi = '/v1/chat/get_all_sessions';
 const getSessionMessagesApi = '/v1/chat/get_session_messages';
 const deleteSessionMessagesApi = '/v1/chat/session_messages';
 const deleteSessionApi = '/v1/chat/delete_context_stream';
-const SessionApi = '/v1/chat/session';
+const sessionApi = '/v1/chat/session';
+const deleteAllSessionsApi = '/v1/chat/all_sessions';
 export const chatDefaultApi = '/api/v1/chat/no_context_stream';
 export const chatContextApi = '/api/v1/chat/context_stream';
 
@@ -34,13 +35,18 @@ export const postDeleteSessionApi = (params: Chat.DeleteSessionReq) =>
   });
 
 export const postAddSessionApi = (params: Chat.AddSessionReq) =>
-  request<Chat.AddessionResp>(SessionApi, {
+  request<Chat.AddessionResp>(sessionApi, {
     method: 'POST',
     body: JSON.stringify(params),
   });
 
 export const postUpdateSessionApi = (params: Chat.UpdateSessionReq) =>
-  request<Chat.AddessionResp>(SessionApi, {
+  request<Chat.AddessionResp>(sessionApi, {
     method: 'PUT',
     body: JSON.stringify(params),
+  });
+
+export const postDeleteAllSessionsApi = () =>
+  request<StatusOk>(deleteAllSessionsApi, {
+    method: 'DELETE',
   });

@@ -49,7 +49,7 @@ const AddSessionModal = ({
       model: sessionInfo.model,
       max_tokens: sessionInfo.max_tokens,
       temperature: sessionInfo.temperature,
-      system: '',
+      system: sessionInfo.system,
     };
     isUpdate = true;
   }
@@ -165,7 +165,6 @@ const AddSessionModal = ({
             initialValue={initValue.system}
           >
             <TextArea
-              disabled={isUpdate}
               placeholder="仅限1000字数以内"
               maxLength={1000}
             />

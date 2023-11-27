@@ -15,7 +15,7 @@ export default function IndexPage() {
   const [inputValue, setInputValue] = useState('');
   const [chatFinished, setChatFinished] = useState(true);
 
-  const updateLastMessageContent = (newContent: string):void => {
+  const updateLastMessageContent = (newContent: string): void => {
     setCurrentMessages(prevMessages => {
       if (prevMessages.length === 0) {
         // 若currentMessages为空，则没有元素可更新
@@ -67,7 +67,6 @@ export default function IndexPage() {
     fetchEventSource(chatDefaultApi, {
       method: 'POST',
       body: JSON.stringify({
-        model_name: 'gpt-3.5-turbo-1106',
         question: input,
       }),
       signal: controller.signal,

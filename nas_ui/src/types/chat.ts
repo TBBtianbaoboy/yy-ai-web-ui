@@ -23,6 +23,7 @@ export interface GetSessionMessagesResp {
   max_tokens: number;
   temperature: number;
   messages: GetSessionMessagesDatas[];
+  system: string;
 }
 
 //-------------------------------------
@@ -51,6 +52,7 @@ export interface UpdateSessionReq {
   max_tokens: number;
   temperature: number;
   stop: string[];
+  system: string;
 }
 
 //-------------------------------------
@@ -69,4 +71,5 @@ export interface SessionInfo {
   model: string;
   temperature: number;
   max_tokens: number;
+  system: string;
 }
